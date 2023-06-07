@@ -71,7 +71,9 @@ Now it is time to implement the task of the module. A task can operate on a sing
 
 ## Defining the input data of the module
 
-We first define what we need to add input data to our task. Let's assume we need a single input, a nifti file, and as in the example before should be a CT scan. We then add a `@IO.Input` decorator to the task method that will fetch the data automatically and provide it as an input parameter to the decorated function. The `@IO.Input` takes the parameter name as the first argument. In the example below, this is set to 'in_data', so we add a parameter `in_data` of type `InstanceData` to the signature of the decorated task method. The second argument is the type. We set 'bool' as the parameter that is either true or false. The third argument is the default value, set to `True` in the example below, which is used if no other value is provided e.g. in the config.yml. We also provide a description to the decorator explaining the parameter's use.
+We first define what we need to add input data to our task. Let's assume we need a single input, a nifti file, and as in the example before should be a CT scan. We then add a `@IO.Input` decorator to the task method that will fetch the data automatically and provide it as an input parameter to the decorated function. The `@IO.Input` takes the parameter name as the first argument. In the example below, this is set to 'in_data', so we add a parameter `in_data` of type `InstanceData` to the signature of the decorated task method. The second argument is used to describe the data type of the input data using a string representation, starting with the file type, followed by any number of meta-key-value pairs separated by a colon. We describe what the input data is in the last argument choosing a structure that reads like *this input data is the ...*.
+
+In this example, the input data is of type NIFTI and has the modality set to ct which is encoded as `nifti:mod=ct`.
 
 ```python
 @IO.Config('fast', bool, True, the='option to enable fast mode')
