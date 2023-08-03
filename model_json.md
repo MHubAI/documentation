@@ -45,7 +45,7 @@ Describe all inputs of the model.
 ***NOTE**: This section is work-in-progress and subject to changes. We need to define attributes per input type (image, data, ..). Below is an example of the current, static structure.*
 
 ```json
-"inputs": {
+"/summary/inputs": {
     "modality": {
         "label": "Imaging Modality",
         "text": "CT"
@@ -72,7 +72,7 @@ Describe all outputs of the model.
 ***NOTE**: This section is work-in-progress and subject to changes. We need to define attributes per data type (segmentation file, scores in a json or csv, ...). Below is an example of the current, static structure.**
 
 ```json
-"outputs": {
+"/summary/outputs": {
     "type": {
         "label": "Type",
         "text": "Segmentation"
@@ -90,11 +90,11 @@ Describe all outputs of the model.
 "/summary/model": {
     "architecture": "", // str: the model architecture (e.g. ResNet50)
     "training": "",     // str: the training method (e.g. supervised)
-    "approach": "",     // str: the approach (e.g. 3D)
+    "cmpapproach": "",  // str: the computational approach (2D or 3D)
 }
 ```
 
-***TODO: we need to define some guideline / default values. E.g. for training: supervised, semi-supervised, unsupervised, transfer learning, ... And revisit the keys, aproach is very broad and might invite for explainations, however we need tag-style keywords here.***
+***TODO**: we need to define some guideline / default values. E.g. for training: supervised, semi-supervised, unsupervised, transfer learning, ... And revisit the keys, aproach is very broad and might invite for explainations, however we need tag-style keywords here.*
 
 ### Data
 
@@ -102,10 +102,14 @@ Describe the data used to train and evaluate the model.
 
 ```json
 "/summary/data": {
-    "training": 0,      // int:  number of samples (e.g. patients) used during training
-    "evaluation": 0,    // int:  number of samples used for evaluation
-    "public": true,     // bool: wheather the model was evaluated on public data
-    "external": false   // bool: wheather the model was cross-validated 
+    "training": {
+        "vol_samples": 0    // int:  number of samples (e.g. patients) used during training
+    },      
+    "evaluation": {
+        "vol_samples": 0,   // int:  number of samples used for evaluation
+    },
+    "public": true,         // bool: wheather the model was evaluated on public data
+    "external": false       // bool: wheather the model was cross-validated 
 }
 ```
 
@@ -143,8 +147,6 @@ This section describes various details of the AI pipeline, the author, the maint
 ```json
 "info": {
     "use": {},
-    "factors": {},
-    "metrics": {},
     "evaluation": {},
     "training": {},
     "analyses": {},
@@ -180,13 +182,11 @@ For each table you can define a `label` that will be displayed above the table. 
 The following sections are mandatory:
 
 - [x] Indended Use
-- [x] Factors
-- [x] Metrics
 - [x] Evaluation Data
 - [x] Training Data
 - [x] Quantitative analysis
-- [x] Ethical considerations
-- [x] Caveats and Recommendations
 
 The following sections are optional:  
-***To be discussed; in case we want to have optional sections***
+
+- [ ] Ethical considerations
+- [ ] Caveats and Recommendations
