@@ -104,7 +104,7 @@ For segmentation models, provide a list of all segmentations (use [SegDB identif
 }
 ```
 
-***TODO**: we need to define some guideline / default values. E.g. for training: supervised, semi-supervised, unsupervised, transfer learning, ... And revisit the keys, aproach is very broad and might invite for explainations, however we need tag-style keywords here.*
+***NOTE**: A more complete list of example values will be provided in the near future.*
 
 ### Data
 

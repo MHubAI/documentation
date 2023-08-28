@@ -10,13 +10,13 @@ The MHub-IO framework provides several modules for importing, converting, and or
 
 The following document gives an overview and examples of all core modules provided with all MHub models.
 
-[documentation/mhubio_modules.md](documentation/mhubio_modules.md)
+[documentation/mhubio/mhubio_modules.md](documentation/mhubio/mhubio_modules.md)
 
 ### How to Write an MHub-IO Module
 
 This document describes how to write custom modules for MHub-IO, e.g., to provide your Runner modules to run a model pipeline or to run a custom conversion or data processing task.
 
-[documentation/how_to_write_an_mhubio_module.md](documentation/how_to_write_an_mhubio_module.md)
+[documentation/mhubio/how_to_write_an_mhubio_module.md](documentation/mhubio/how_to_write_an_mhubio_module.md)
 
 ## MHub Model
 
