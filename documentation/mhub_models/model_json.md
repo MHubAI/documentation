@@ -37,12 +37,18 @@ The title th emodel will be displayed under on MHub's website and other integrat
 
 ```js
 "/summary": {
+    "description": "",
     "inputs": [],
     "outputs": [],
     "model": {},
     "data": {}
 }
 ```
+
+### Description
+
+A brief description of the model summarizing the purpose and functions of the model as detailed in the Model Card sections below.
+The description will be displayed in our model repository and therefore must be as precise and accurate as possible. We allow for a maximum length of 200 characters.
 
 ### Inputs
 
