@@ -313,7 +313,7 @@ Exporter modules are used to export raw, derived or aggregated information on th
 
 The JsonSegExporter exports files and their SegDB segmentation IDs. You should use the same file targets in the JsonSegExporter as in the DataOrganizer to export information about the SegDB IDs of the files that match the files.
 
-```json
+```yaml
   JsonSegExporter:
     targets:
     - nifti:mod=seg-->[i:sid]/[basename]
@@ -326,16 +326,16 @@ The JsonSegExporter exports files and their SegDB segmentation IDs. You should u
 
 The exporter will generate a json file of the following structure, with one entry for each file matching any of the set targets.
 
-```json
+```js
 [
   {
     "file": "1.2.826.0.1.3680043.8.498.99748665631895691356693177610672446391/image.nii.gz",
     "labels": {
       0: "HEART",
-      ...
+      // ...
     }
   },
-  ...
+  // ...
 ]
 ```
 
@@ -347,12 +347,11 @@ To specify the data to include in your report, you write directives in the `incl
 
 The `format` attribute allows you to specify the format of the report. There are three different formats: `separated`, `nested`, `compact`. In *separated* format the json report is an array of objects, each containing a label and a value. In the *compact* format, the json report is an object with the labels as keys and the values as values. The *nested* format creates a nested array based on the labels, where you can separate the levels with a `/`.
 
-```json
+```yaml
 ReportExporter:
     format: compact
     includes: []
 ```
-
 
 #### Static
 
