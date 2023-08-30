@@ -474,12 +474,12 @@ To organize your data, you can specify a list of directives in the 'target' attr
 - `[filename]` -> filename of the datatype
 - `[filext]` -> file extension of the datatype (or empty)
 - `[i:id]` -> instance id
-- `[i:...]` -> any attribute from instance id
-- `[d:...]` -> any metadata from datatype
+- `[i:...]` -> any attribute from the instance
+- `[d:...]` -> any metadata from the datatype
 
-Wildcards starting with `i:` are used to access any instance attribute, e.g., `[i:id]` is replaced with the ID of an instance. Wildcards starting with `d:` are used to access any meta field from the data, e.g. `[d.mod]` is replaced with the mod value such as ct, mr, seg, etc.
+Wildcards starting with `i:` are used to access any instance attribute, e.g., `[i:id]` is replaced with the ID of an instance. Wildcards starting with `d:` are used to access any meta field from the data, e.g. `[d:mod]` is replaced with the Modality of the datatype such as CT, MR, SEG, etc.
 
-Normally, the data organizer contains only data that has been confirmed. MHub internally checks whether files and folders have actually been created, and assigns a confirmation flag to this. Note that this doesn't include content checks. Data cannot be confirmed if an error occurs during creation after the data object has already been created in the internal structure. To disable this behaviour and include unconfirmed files, set the `require_data_confirmation` attribute to `false`, which defaults to `true`.
+Normally, the data organizer contains only data that has been confirmed. MHub internally checks whether files and folders have actually been created, and assigns a confirmation flag if positive. Note that this doesn't include content checks. Data cannot be confirmed if an error occurs during creation after the data object has already been created in the internal structure. To disable this behaviour and include unconfirmed files, set the `require_data_confirmation` attribute to `false`, which defaults to `true`.
 
 ```yaml
 DataOrganizer:

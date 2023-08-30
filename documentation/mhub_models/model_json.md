@@ -3,7 +3,7 @@
 This document describes the JSON format used to store model metadata for all MHub models.
 A `meta.json` is required for each MHub model.
 
-The document structure is mainly aligned to the model card approach proposed by Mitchell, M. et al. (2019).
+The document structure is mainly aligned to the model card approach proposed by [Mitchell, M. et al. (2019)](https://arxiv.org/abs/1810.03993).
 
 All fields not marked as optional are required.
 
@@ -53,19 +53,21 @@ The description will be displayed in our model repository and therefore must be 
 ### Inputs
 
 Describe all inputs of the model.
-For each input, you will need to give a label which will be used as human readable short fort representation, a long term description and the format and modality of the input data. For format you can choose any of our supported [file types](https://github.com/MHubAI/mhubio/blob/main/mhubio/core/FileType.py). For modality, you can use any value supported by the [DICOM standard](https://www.dicomlibrary.com/dicom/modality/), you can find a list of commonly used modalities on MHub in our [meta template](https://github.com/MHubAI/mhubio/blob/main/mhubio/core/templates.py).
+For each input, you will need to give a label which will be used as human readable short fort representation, a long term description and the format and modality of the input data. For format you can choose any of our supported [file types](https://github.com/MHubAI/mhubio/blob/main/mhubio/core/FileType.py). For modality, you can use any value supported by the [DICOM standard](https://www.dicomlibrary.com/dicom/modality/), you can find a list of commonly used modalities on MHub in our [meta template](https://github.com/MHubAI/mhubio/blob/main/mhubio/core/templates.py). 
+
+For *image inputs*, also specify the `bodypartexamined`, `slicethickness` and `contrast` / `noncontrast` attributes where applicable. A ful llist of supported body parts can be found [here](https://dicom.nema.org/medical/dicom/current/output/chtml/part16/chapter_L.html#chapter_L). Report the maximal supported slice thickness as a string in mm, you can explain this in more detail under the *intended use* section. Set the `contrast`and `noncontrast` flags to `true` or `false` to indicate wheather your model supports imagery taken under the usage of an contrast agent, or not.
 
 ```js
 "/summary/inputs": [
     {
-        "label": "Input Image",
-        "description": "The CT scan of a patient.",
-        "format": "NIfTI",
-        "modality": "CT", 
-        "bodypartexamined": "Chest",
-        "slicethickness": "2.5mm",
-        "contrast": true,
-        "noncontrast": false            
+        "label": "Input Image",                     // str: short human readable identifyer
+        "description": "The CT scan of a patient.", // str: longer description of the input data
+        "format": "NIFTI",                          // str: one of our supported file types    
+        "modality": "CT",                           // str: one of our supported modalities
+        "bodypartexamined": "Chest",                // str: the body part examined 
+        "slicethickness": "2.5mm",                  // str: the maximal slice thickness in mm
+        "contrast": true,                           // bool: supports images acquired with contrast agent
+        "noncontrast": false                        // bool: supports images acquired without contrast agent            
     }
 ]
 ```
@@ -73,18 +75,18 @@ For each input, you will need to give a label which will be used as human readab
 ### Outputs
 
 Describe all outputs of the model.
-For each output, you will need to give a label which will be used as human readable short fort representation, a long term description of the file and the type of the model which must be either `Segmentation`, `prediction` or `Classification`.
+For each output, you will need to give a label which will be used as human readable short fort representation, a long term description of the file and the type of the model which must be either `Segmentation`, `Prediction` or `Classification`.
 
 For segmentation models, provide a list of all segmentations (use [SegDB identifyers](https://github.com/MHubAI/SegDB/blob/main/segdb/data/segmentations.csv)) under the `classes` attribute.
 
 ```js
 "/summary/outputs": [
     {
-        "label": "Segmentation",
-        "description": "Segmentation of the lung lobes",
-        "type": "Segmentation",
-        "classes": [
-            "LEFT_UPPER_LUNG_LOBE",
+        "label": "Segmentation",                            // str: short human readable identifyer
+        "description": "Segmentation of the lung lobes",    // str: longer description of the output data
+        "type": "Segmentation",                             // str: output type (Segmentation|Prediction|Classification|Other)
+        "classes": [                                        // list[str]: list of segmentation classes, only for segmentation models
+            "LEFT_UPPER_LUNG_LOBE",                         // str: SegDB identifyer
             "LEFT_LOWER_LUNG_LOBE",
             "RIGHT_UPPER_LUNG_LOBE",
             "RIGHT_MIDDLE_LUNG_LOBE",
@@ -169,7 +171,7 @@ Additional sections of the Model Card are bundled under info in the model json.
 These sections contain detailed information and descriptions about the model's use case, how to use the model, the model's data compatibility, and additional information about the training process and evaluation results.
 
 ```js
-"/info/*": {
+"/info/*": {            // description|use|analyses|evaluation|training|ethics|limitations
     "text": "",         // str: the text of the section
     "references": [{    // list[str]: optional list of references (e.g., links)
         "label": "",    // str: the label of the reference
