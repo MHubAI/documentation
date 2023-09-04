@@ -49,3 +49,7 @@ All MHub containers must provide the following entrypoint and cmd:
 ENTRYPOINT ["python3", "-m", "mhubio.run"]
 CMD ["--workflow", "default"]
 ```
+
+## The Standalone Concept
+
+All MHub Dockerfiles must be *standalone*, i.e. they can be built without additional local dependencies. Therefore, the use of the `COPY` or `ADD` statements is prohibited. Instead, download or clone the online resources at build time and use Docker mounts during development.
