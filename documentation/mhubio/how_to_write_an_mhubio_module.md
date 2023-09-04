@@ -9,6 +9,8 @@ When writing a new MHub-IO, a few design guidelines should be followed.
 Start with defining a class for your module. All MHub-IO modules inherit from the Module base class.
 
 ```python
+from mhubio.core import Module
+
 class MyModule(Module):
    pass
 ```
@@ -26,6 +28,8 @@ class MyModule(Module):
 Next, think about any parameter that needs to be customizable. For example, a module might have a fast mode, which will be used by default but can be disabled by the user. The type of such a parameter is a boolean, as this is either true or false. We add the parameter to the module and expose it using the `@IO.Config` decorator.
 
 ```python
+from mhubio.core import IO
+
 @IO.Config('fast', bool, True, the='option to enable fast mode')
 class MyModule(Module):
    fast: bool
@@ -45,6 +49,8 @@ modules:
 In edge cases, the parameter can also be overridden in python (e.g., in a custom run.py script)
 
 ```python
+from mhubio.core import Config
+
 config = Config('config.yml')
 
 m = MyModule(config)
@@ -101,6 +107,7 @@ class MyModule(Module):
 the='processed ct scan')
    def task(self, instance: Instance, in_data: InstanceData, out_data: InstanceData):
       print('input data: ' + in_data.abspath)
+      
       # do sth with the input data
       print('stor results in ' + out_data.abspath)
 ```
@@ -123,6 +130,126 @@ class MyModule(Module):
 the='processed ct scan')
    def task(self, instance: Instance, in_data: InstanceData, out_data: InstanceData):
       print('input data: ' + in_data.abspath)
+      
       # do sth with the input data
-      print('stor results in ' + out_data.abspath)
+      print('store results in ' + out_data.abspath)
 ```
+
+## Handling Logical Output Data
+
+Unlike segmentation models, classification or prediction models typically don't produce a file-based output, but a single prediction number or vector. Technically, this is also true for segmentation models, however, due to their pre- and post-processing chain, they usually generate an image as output and provide metadata such as orientation and position in 3D image space for their numerical output. Similarly, some prediction and classification models can produce a file-based report, such as a JSON, CSV, or TXT file. You can use the `@ IO.Output` decorator to export these files. However, if your model predicts a one-dimensional vector, we provide a different set of decorators to describe and store this data. This is of interest to you even if your model generates its own file. This is because we store this data internally in a structured format and provide a flexible export module to create JSON reports, for example.
+
+### Defining a Value Output
+
+This method is used to define a single value output, e.g. a risk prediction value.
+
+First, define a class that inherits from `ValueOutput` to describe your predicted value. In this example, we define a value output for a model that predicts the Agatston score. 
+
+```python
+from mhubio.core import ValueOutput
+
+class AgatstonScore(ValueOutput):
+   pass
+```
+
+We now need to describe the name and type of this value output and give a label, description, and optional meta data. For these, we provide a set of decorators. The `@ValueOutput.Name(str: name)` decorator is used to set an unique name. This name will then be used to reference your value in the Module class and to include the value in a custom report. The `@ValueOutput.Type(type: type)` decorator is used to set the type of the value. The type can be any python type, e.g. `int`, `float`, `str`, `bool`. The `@ValueOutput.Label(str: label)` decorator is used to set a human-readable name. The `@ValueOutput.Description(str: description)` decorator is used to set long-form a human-readable description for the value. You can also specify metadata as known from file based  inputs and outputs using the optional `@ValueOutput.Meta(dict: meta)` decorator. The meta data can be used to store additional information about the value, e.g. the unit of the value.
+
+```python
+from mhubio.core import Meta
+
+@ValueOutput.Name('ags')
+@ValueOutput.Meta(Meta(key="value"))
+@ValueOutput.Label('AgatstonScore')
+@ValueOutput.Type(int)
+@ValueOutput.Description('Prediction of the agatson score.')
+class AgatstonScore(ValueOutput):
+   pass
+```
+
+The class serves only as a wrapper for our value. All functions are inherited from the base class `ValueOutput` and you shouldn't add any additional implementation to the class.
+
+Now to access the value in your module, use the `@IO.OutputData` decorator and specify the name of the value output, the class of the value output, optionally the data from which the value is derived if it can be associated with a single file similar to the `@IO.Output` decorator, and a description of the value output. The value output is passed to the task method as an additional parameter with the name you specified as the first argument of the decorator, and with a type of your value output class (`AgatstonScore` in this example`).
+
+```python
+@IO.Config('fast', bool, True, the='option to enable fast mode')
+@IO.ConfigInput('in_data', 'nifti|nrrd:mod=ct|mr', the='chest ct scan')
+class MyModule(Module):
+   fast: bool
+
+   @IO.Instance
+   @IO.Input('in_data', the='chest ct scan')
+   @IO.OutputData('ags', AgatstonScore, data='in_data', the='agatston score')
+   def task(self, instance: Instance, in_data: InstanceData, out_data: InstanceData):
+      print('input data: ' + in_data.abspath)
+      
+      # set the value on your output value
+      ags.value = 130
+```
+
+As shown in the example above, you simply set the `value` to the instance of your output value class, which is automatically created by the decorator `@IO.OutputData`.
+
+### Defining a Vector Output
+
+With class prediction models, you usually have a little more information. Starting with the classes that the model can predict, each of which deserves its own label and description, you can generate a probability for each class, in addition to specifying the model's final decision. This type of vector output can be stored in a class output. In the following example, we define a class output for the risk category, which can be either low, medium, or high.
+
+First, define a class that inherits from `ClassOutput` to describe your predicted class. In this example, we define a class output for a model that predicts the risk category.
+Similarly to teh value output, we specify a name, label and description (note, we use decorators from `@IO.ClassOutput` instead of `@IO.ValueOutput`).
+
+```python
+from mhubio.core import ClassOutput
+
+@ClassOutput.Name('rc')
+@ClassOutput.Label('RiskCategory')
+@ClassOutput.Description('Prediction of the risk category.')
+class RiskCategory(ClassOutput):
+   pass
+```
+
+Now we need to define the classes that the model can predict. For each class we can specify a `@ClassOutput.Class(classID: str | int, label: str, the: str)`. The decorator `@ClassOutput.Class` is the only decorator that can be used multiple times. You use one per output class you want to define. You can then later reference each class by its `ClassID`. The classID can be specified either numerically or as a string. The "Label" is a human readable name for the class and "The" is as usual a human readable description of the class.
+
+```python
+@ClassOutput.Name('rc')
+@ClassOutput.Label('RiskCategory')
+@ClassOutput.Description('Prediction of the risk category.')
+@ClassOutput.Class('low', 'Low', the='Class describing the lowest risk group.')
+@ClassOutput.Class('moderate', 'Moderate', the='Moderate risk.')
+@ClassOutput.Class('high', 'High', 'High risk.')
+class RiskCategory(ClassOutput):
+   pass
+```
+
+Extending our example from earlyer, we can now provide our class output format similarly to the value output using an `@IO.OutputData` decorator on our Module's `task()` method.
+
+```python
+@IO.Config('fast', bool, True, the='option to enable fast mode')
+@IO.ConfigInput('in_data', 'nifti|nrrd:mod=ct|mr', the='chest ct scan')
+class MyModule(Module):
+   fast: bool
+
+   @IO.Instance
+   @IO.Input('in_data', the='chest ct scan')
+   @IO.OutputData('ags', AgatstonScore, data='in_data', the='agatston score')
+   @IO.OutputData('rc', RiskCategory, data='in_data', the='risk category derived from the agatston score')
+   def task(self, instance: Instance, in_data: InstanceData, out_data: InstanceData):
+      print('input data: ' + in_data.abspath)
+      
+      # set the value on your output value
+      ags.value = 130
+
+      # set the class output
+      rc.value = 'moderate'   # use the classID here
+
+      # optionally assign probabilities to each class
+      rc.assign_probabilities({
+         'low': 0.1,
+         'moderate': 0.7,
+         'high': 0.2
+      })
+
+      # or assign the probability for each class separately
+      rc['low'].probability = 0.1
+      rc['moderate'].probability = 0.7
+      rc['high'].probability = 0.2
+```
+
+We demonstrated how to set the prediction values either using the `assign_probabilities` method or by setting the probability for each class individually. You can access each class by class ID (e.g. `rc['moderate']` to access the moderate class). If you have specified integer class IDs, you can also pass a list instead of a dictionary to the `assign_probabilities` method and set the probability for each class in the order you specified the classes in the decorator.
