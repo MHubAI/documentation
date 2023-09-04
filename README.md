@@ -22,6 +22,12 @@ This document describes how to write custom modules for MHub-IO, e.g., to provid
 
 MHub models are bundled in a specific format. In addition, we require some specific metadata to be provided and set some rules on how source code and third-party resources can be provided with Mhub models.
 
+## The MHub Model Folder Format
+
+Each MHub model is organized in a specific folder structure within our  [Models Repository](https://github.com/MHubAI/models/). This document describes the structure of the folder and how to set it up.
+
+[documentation/mhub_models/model_folder_structure.md](documentation/mhub_models/model_folder_structure.md)
+
 ## Mhub Model Meta Data
 
 For each model, a `meta.json` file that describes the model in a defined format must be provided. The following document describes the structure of the file. 
