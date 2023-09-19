@@ -40,7 +40,7 @@ Therefore, create at least one `default.yml` file in the configs folder. More in
 
 Each MHub workflow, as described in your configuration file, consists of a list of modules that are executed in sequence. An overview with detailed explanations of all our core modules can be found [here](../mhubio/mhubio_modules.md). In addition to our core modules, you can also write your own modules. For example, you will always write a RunnerModule that wraps your AI pipeline, but you can also write additional pre- or post-processing modules, converters or report generators.
 
-All custom modules are stored in the `/models/my_model/utils` folder. Start writing your `MyModelRunner` runenr module as explained [in this article] (../mhubio/how_to_write_an_mhubio_module.md) and place it in a `MyModelRunner.py` file in the utils folder. It is important that you provide only one module class per file, name the file exactly like the class and place it in the utils folder so that MHub- IO can find and import your module automatically.
+All custom modules are stored in the `/models/my_model/utils` folder. Start writing your `MyModelRunner` runenr module as explained [in this article](../mhubio/how_to_write_an_mhubio_module.md) and place it in a `MyModelRunner.py` file in the utils folder. It is important that you provide only one module class per file, name the file exactly like the class and place it in the utils folder so that MHub- IO can find and import your module automatically.
 
 ## Metadata
 
