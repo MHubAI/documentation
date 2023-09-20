@@ -1,10 +1,19 @@
 # MHub Documentation
 
+MHub is a platform for medical AI models. It provides a standardized interface for AI models and a standardized way to run them. This document describes the basic principles of MHub and how to use it.
+
 The following documentation is primarily intended for developers and contains information on how to customize configurations and describes the requirements and principles that must be met in order to contribute models to Mhub, but also for interested readers who want to learn more about the inner workings of Mhub.
 
 ## MHub Model
 
-MHub models are bundled in a specific format. In addition, we require some specific metadata to be provided and set some rules on how source code and third-party resources can be provided with Mhub models.
+MHub models are bundled in a specific format. In addition, we require some specific metadata to be provided and set some rules on how source code and third-party resources can be provided with MHub models.
+
+### Versioning in MHub
+
+This document describes how MHub models are versioned to achieve a high degree of reproducibility.
+Versioning plays an important role in our efforts to provide reproducible AI models, and together with our standardized input-output interface, makes it so easy to integrate MHub models into third-party systems.
+
+[documentation/mhub/versioning.md](documentation/mhub/versioning.md)
 
 ### The MHub Model Folder Format
 
@@ -14,10 +23,10 @@ Each MHub model is organized in a specific folder structure within our  [Models 
 
 ### Mhub Model Meta Data
 
-For each model, a `meta.json` file that describes the model in a defined format must be provided. The following document describes the structure of the file. 
+MHub models are not only about the implementation of the AI pipeline, which contains the environment setup and source code of the model, but also metadata describing the intended use of the model, inputs and outputs, training and evaluation data, and metrics. All of this information can be found on our [website](https://mhub.ai) on the model page. All of this meta information is contained in a single `meta.json` file.
+The following document describes the structure of the file.
 
 [documentation/mhub_models/model_json.md](documentation/mhub_models/model_json.md)
-
 
 ## MHub-IO
 
