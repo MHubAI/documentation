@@ -8,6 +8,12 @@ The following documentation is primarily intended for developers and contains in
 
 MHub models are bundled in a specific format. In addition, we require some specific metadata to be provided and set some rules on how source code and third-party resources can be provided with MHub models.
 
+### Running MHub Models
+
+All MHub models are shipped as Docker images. This article explains, how you can run our MHub containers.
+
+[documentation/mhub/run_mhub.md](documentation/mhub/run_mhub.md)
+
 ### Versioning in MHub
 
 This document describes how MHub models are versioned to achieve a high degree of reproducibility.
