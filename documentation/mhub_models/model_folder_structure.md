@@ -6,7 +6,6 @@ The folder of the model is named after the [MHub name](model_json.md#name) of th
 
 This document explains how the model folders are structured on MHub and how you set them up.
 
-
 ## Model Folder Structure
 
 You'll create a folder under `/models/my_model` for your model.
