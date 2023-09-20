@@ -52,6 +52,18 @@ Finally, we need to specify the Docker image (`repo/image:tag`), where the repos
 
 *You can run `docker -run --help` to see a full list of options*
 
+## MHub CLI
+
+When you run an MHub workflow, you can specify various CLI commands. CLI arguments are passed *after* the image name in the docker run command. You can fins a full list of commands by passing the `--help` argument, e.g. `docker run --rm --entrypoint mhub.run mhubai/base:latest --help`.
+
+### Specify the Workflow
+
+As mentioned, all MHub models come at least with a default workflow, defined in a default.yml configuration file. Workflow configurations are stored inside the container under `/app/models/$model_name/config/$workflow_name.yml`. You can mount your custom config files here as explained later.
+
+When you start the container in interactive mode (`-it --entrypoint mhub.run`) we show a list of all available workflows that you can navigate with the up and down arrows of your keyboard. Press enter to start the selected workflows.
+
+You can also start your workflow directly by either specifying the absolute path to the config file (e.g., `--config /app/model/$model_name/config/default.yml`). Alternatively, you can specify the workflow name (e.g., `--workflow default`).
+
 ## Inside the Container
 
 There are several ways you can run our containers. We'll only briefly cover this topic, as it's more about using Docker containers in general. If you want to debug a Docker container, it can be helpful to go into the container and manually run the MHub pipeline. This way you can check the generated files without exporting them to your host machine.
