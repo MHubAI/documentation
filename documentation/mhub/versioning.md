@@ -4,25 +4,23 @@ This document describes how validation, versioning and marking of MHub models is
 
 ## Versions in the MHub Ecoverse
 
-In the MHub ecoverse, we need to distinguish between different types of versions for MHub (v) and its dependencies, and for MHub models (m) themselves. Versions are incremented independently of each other. We increment the MHub version whenever we release a new version of MHub (see Stable Releases for more details). For models, we increment the model version whenever the model releases a new version or when the model is significantly updated. Since specifying the model version in the Docker file is mandatory for MHub models, a change in model version due to a model update always is always connected with an update of the model's Docker file in our models repository. Independent maintenance of Mhub and model versions means that there is a 1:1 relationship between an Mhub version and a model version, and exactly one version of the model is available for each stable Mhub version.
+In the MHub ecoverse, we need to distinguish between different types of versions for MHub (v) and its dependencies, and for MHub models (m) themselves. Versions are incremented independently of each other. We increment the MHub version whenever we release a new version of MHub (see section [Stable Releases](versioning.md#stable-releases)). For models, we increment the model version whenever the model releases a new version or when the model is significantly updated. Since specifying the model version in the Docker file is mandatory for MHub models, a change in model version due to a model update always is always connected with an update of the model's Docker file in our [Models Repository](https://github.com/MHubAI/models/). Independent maintenance of Mhub and model versions means that there is a 1:1 relationship between an Mhub version and a model version, and exactly one version of the model is available for each stable Mhub version.
 
 ## Reproducibility Checks
 
-All MHub models undergo a weekly reproducibility check. That is, we build the Dockerfile and check if the output of the model matches the expected output. We perform various checks, such as validating file names and file sizes, and comparing file contents such as Dice scores for segmentation images. Only models that pass a check are uploaded to Dockerhub. If a model cannot be built or does not pass all checks, we indicate this with a warning on our website. At the same time, we give the developers of the model the opportunity to fix the problem or explain that the model has changed significantly, resulting in a version increase. This means that you can always expect accurate results for all MHub versions, even if you are using the latest version of the model with the latest features (see "Latest versions" for more information), even if no warning is displayed on our website.
+All MHub models undergo a weekly reproducibility check. That is, we build the Dockerfile and check if the output of the model matches the expected output. We perform various checks, such as validating file names and file sizes, and comparing file contents such as Dice scores for segmentation images. Only models that pass a check are uploaded to Dockerhub. If a model cannot be built or does not pass all checks, we indicate this with a warning on our website. At the same time, we give the developers of the model the opportunity to fix the problem or explain that the model has changed significantly, resulting in a version increase. This means that you can always expect accurate results for all MHub versions, even if you are using the latest version of the model with the latest features (see section [Latest Release](versioning.md#latest-release)), even if no warning is displayed on our website.
 
 Thanks to our regular model testing, you can trust all models on MHub. In the past, we found that an updated library that the model depended on caused the model to produce slightly different segmentations on each run. This is very hard to notice when you only run the model once, especially since the code and commit history of the model didn't change at all. However, through our regular reviews, we can detect such issues and prevent the model from being built until the bugs are fixed. If you have contributed a model to MHub and we detect an anomaly in your model, we will warn you accordingly. We encourage all users to report to us if they discover an anomaly in an MHub model so that we can review our controls and update or expand them as necessary.
 
 ## Releases
 
-We have two different kinds of releases for Mhub models. Latest and stable releases.
-
-- important that all models of an mhub release share the same base image and  thus the same feature set
+We provide two different kinds of releases for Mhub models: latest and stable releases.
 
 ### Latest Release
 
 `:latest`
 
-As explained in the Reproducibility Checks section above, we build all MHub models every week to ensure the model code stays up-to-date and the most recent Modules and features (and fixes) of MHub are available to you. As long as the built image passes all of our output checks, we push it to DockerHub under the `:latest`tag.`.
+As explained in the Reproducibility Checks section above, we build all MHub models every week to ensure the model code stays up-to-date and the most recent Modules and features (and fixes) of MHub are available to you. As long as the built image passes all of our output checks, we push it to DockerHub under the `:latest` tag.
 
 ### Stable Releases
 
