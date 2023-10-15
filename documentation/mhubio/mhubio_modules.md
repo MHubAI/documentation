@@ -428,7 +428,7 @@ The most important include directive is the data directive, which allows all der
 
 There are two different types of outputs: Value outputs and Class outputs. Value outputs have a single value, such as a model's prediction. Class outputs have multiple classes, each with a prediction score. The value of a class output is the selected class (the selection of the class depends on the pipeline, but is usually the class with the highest prediction score).
 
-Use the `data` directive for a data directive and specify the name as the value. The name cannot be left empty. Specify the value you want to display under the `value` keyword. For value and class outputs you can specify `value: description`, `value: label` or `value: value` to report the description, label or value of the output data. For value outputs you can additionally specify `value: type` to report the data type (e.g. string, integer, float) of the output. For class outputs you can specify insead the attribute `class: $classname` and use the class name to report insead the description, label, or value of that class.
+Use the `data` directive for a data directive and specify the name (or a query string) as the value. A query string is similarily to query string used for fiel queries but instead of a data type (e.g., dicom or nrrd) you specify the name of the data field. Specify the value you want to display under the `value` keyword. For value and class outputs you can specify `value: description`, `value: label` or `value: value` to report the description, label or value of the output data. For value outputs you can additionally specify `value: type` to report the data type (e.g. string, integer, float) of the output. For class outputs you can specify insead the attribute `class: $classname` and use the class name to report insead the description, label, or value of that class.
 
 ```yaml
 ReportExporter:
@@ -444,11 +444,11 @@ ReportExporter:
   - data: rs
     label: Risk Group Description
     value: description
-  - data: rs
+  - data: rs:metakey=value
     label: Risk Group probability (low)
     class: low
     value: probability
-  - data: rs
+  - data: rs AND any:metakey=value
     label: Predicted Risk Group
     value: value
 ```
