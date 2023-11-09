@@ -27,10 +27,18 @@ Next, install all your system dependencies, e.g. python packages.
 
 Then you need to clone your [model folder](model_folder_structure.md) to your Dockerfile with a [sparse checkout](https://git-scm.com/docs/git-sparse-checkout) from the MHub [Models Repository](https://github.com/MHubAI/models/).
 
-Of course, the model folder is not yet available when you create your Docker image. But since all models are structured so that the name of your model is the name of the folder you want to clone to, you can anticipate what the command will look like and put it in the comments to bypass it for now. Instead, we recommend you mount your local model folder into the Docker container during development and for testing:
+We prepared a build utility script that helps with this step. Add the following three lines to your Dockerfile and replace `my_model` with the name of your model. The `import_mhub_model.sh` script automatically loads your model structure from our models repository.
+
+```dockerfile
+# Import the MHub model definiton
+ARG MHUB_MODELS_REPO
+RUN buildutils/import_mhub_model.sh my_model ${MHUB_MODELS_REPO}
+```
+
+As your model will of course not be available on our models repository unless your contribution is accepted, this won't build. The lines above therefore introduce a build argument `MHUB_MODELS_REPO` that you can use to specify your repository and branch at build time. As shown below, you can then specify `--build-arg` with the `docker build` command to set `MHUB_MODELS_REPO` to the url of your fork of our models repository and optionally specify the branch name separated with `::` from the url.
 
 ```bash
-docker run --rm -it --entrypoint bash -v /absolute/path/to/local/my_model:/app/models/my_model local/my_model:latest
+docker build --build-arg MHUB_MODELS_REPO=https://github.com/your_username/models-fork::branch -t dev/my_model:latest .
 ```
 
 ## Clone Source Code
