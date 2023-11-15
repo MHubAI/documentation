@@ -142,9 +142,9 @@ This section describes various details of the AI pipeline, the author, the maint
         "pub": "dd.mm.yyyy"        // str: the date the publication was published
     },
     "cite": "",             // str:       the citation of the publication (APA)
-    "licence": {
-        "code": "",         // str: the licence of the code
-        "weights": "",      // str: the licence of the weights
+    "license": {
+        "code": "",         // str: the license of the code
+        "weights": "",      // str: the license of the weights
     },
     "publications": [{      // list[obj]: list of publications (one required)
         "title": "",        // str: the full title of the publication
