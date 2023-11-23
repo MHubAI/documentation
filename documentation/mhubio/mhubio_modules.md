@@ -428,7 +428,7 @@ The most important include directive is the data directive, which allows all der
 
 There are two different types of outputs: Value outputs and Class outputs. Value outputs have a single value, such as a model's prediction. Class outputs have multiple classes, each with a prediction score. The value of a class output is the selected class (the selection of the class depends on the pipeline, but is usually the class with the highest prediction score).
 
-Use the `data` directive for a data directive and specify the name (or a query string) as the value. A query string is similarily to query string used for fiel queries but instead of a data type (e.g., dicom or nrrd) you specify the name of the data field. Specify the value you want to display under the `value` keyword. For value and class outputs you can specify `value: description`, `value: label` or `value: value` to report the description, label or value of the output data. For value outputs you can additionally specify `value: type` to report the data type (e.g. string, integer, float) of the output. For class outputs you can specify insead the attribute `class: $classname` and use the class name to report insead the description, label, or value of that class.
+Use the `data` directive for a data directive and specify the name (or a query string) as the value. A query string is similarily to query string used for file queries, but instead of a data type (e.g., dicom or nrrd) you specify the name of the data field. Specify the value you want to display under the `value` keyword. For value and class outputs you can specify `value: description`, `value: label` or `value: value` to report the description, label or value of the output data. For value outputs you can additionally specify `value: type` to report the data type (e.g. string, integer, float) of the output. For class outputs you can specify insead the attribute `class: $classname` and use the class name to report insead the description, label, or value of that class.
 
 ```yaml
 ReportExporter:
@@ -454,6 +454,17 @@ ReportExporter:
 ```
 
 The name of a value output or class output is as defined in the ModelRunner module using the MHub-IO `@ValueOutput.Name` and `@ClassOutput.Name` decorators. The name of a class for a class output is as defined by the first argument to the `@ClassOutput.Class` decorator.
+
+If the `data: <query>` query fetches more than one matching data instance you must use an aggregate function. By default, `aggregate: one` is set to `one`, which will throw an error if not exactly one file is returned. The following aggregate functions are supported:
+
+- **one**    (returns the first matching value, fails if more than one matching value is found)
+- **first**  (returns the first matching value)
+- **list**   (returns a list of all matching values, a `delimiter: ','` for concatenation can optionally be specified)
+- **count**  (returns the counted number of matching values)
+- **sum**    (requires numeric values, returns the sum of all matching values)
+- **avg**    (requires numeric values, returns the average of all matching values)
+- **min**    (requires numeric values, returns the minimum of all matching values)
+- **max**    (requires numeric values, returns the maximum of all matching values)
 
 ## Organize Data
 
