@@ -137,7 +137,7 @@ the='processed ct scan')
 
 ## Handling Logical Output Data
 
-Unlike segmentation models, classification or prediction models typically don't produce a file-based output, but a single prediction number or vector. Technically, this is also true for segmentation models, however, due to their pre- and post-processing chain, they usually generate an image as output and provide metadata such as orientation and position in 3D image space for their numerical output. Similarly, some prediction and classification models can produce a file-based report, such as a JSON, CSV, or TXT file. You can use the `@ IO.Output` decorator to export these files. However, if your model predicts a one-dimensional vector, we provide a different set of decorators to describe and store this data. This is of interest to you even if your model generates its own file. This is because we store this data internally in a structured format and provide a flexible export module to create JSON reports, for example.
+Unlike segmentation models, classification or prediction models typically don't produce a file-based output, but a single prediction number or vector. Technically, this is also true for segmentation models, however, due to their pre- and post-processing chain, they usually generate an image as output and provide metadata such as orientation and position in 3D image space for their numerical output. Similarly, some prediction and classification models can produce a file-based report, such as a JSON, CSV, or TXT file. You can use the `@IO.Output` decorator to export these files. However, if your model predicts a one-dimensional vector, we provide a different set of decorators to describe and store this data. This is of interest to you even if your model generates its own file. This is because we store this data internally in a structured format and provide a flexible export module to create JSON reports, for example.
 
 ### Defining a Value Output
 
@@ -253,6 +253,143 @@ class MyModule(Module):
 ```
 
 We demonstrated how to set the prediction values either using the `assign_probabilities` method or by setting the probability for each class individually. You can access each class by class ID (e.g. `rc['moderate']` to access the moderate class). If you have specified integer class IDs, you can also pass a list instead of a dictionary to the `assign_probabilities` method and set the probability for each class in the order you specified the classes in the decorator.
+
+## Handling Multiple and Dynamic Inputs and Outputs
+
+In some cases, we want to create a module that takes more than one input file or generates more than one output file. Simply use more than one `@IO.Input` or multiple `@IO.Output` decorators to specify each input and each output explicitly. This will be all you need for most scenarios and should always be the preferred method.
+
+However, sometimes this is not enought and we want to specify inputs or outputs of dynamic length. MHub-IO is capable of handling these cases as well. Note, that this is a more advanced use case thus carefully consider if what you try to achieve cannot be done by using multiple single input or output decorators in the favor of the highest degree of readablility of your Module implementation.
+
+### Dynamic Input [1:n]
+
+Let's face some examples in which dynamic input actually is required. For instance, consider a module that takes all dicom CT files and print's the number of these files. This has little practical relevance, however, there are plenty scenarios where such an `n:1` operation is reuired, like reporting the maximal HU values over several files as data output.
+
+```Python
+@ValueOutput.Name('maxHU')
+@ValueOutput.Label('Maximal HU value')
+@ValueOutput.Type(int)
+@ValueOutput.Description('The maximal HU value over all CT scans.')
+class MaxHU(ValueOutput):
+   pass
+
+def getMaxHU(dicom_dir) -> int:
+   # ... calculate and get the HU here
+   return maxHU
+   
+class MyModule(Module):
+
+   @IO.Instance
+   @IO.Inputs('in_datas', 'dicom:mod=ct', the='all MHA files to be converted')
+   @IO.OutputData('maxHU', MaxHU)
+   def task(self, instance: Instance, in_datas: InstanceDataCollection, maxHU: MaxHU):
+     
+     # print the number of files matching dicom:mod=ct on the instance
+     print(f"This instance has {len(in_datas)} dicom CT files.")
+
+     # calculate the max HU value
+     maxHU.value = max(getMaxHU(in_data.abspath) for in_data in in_datas)
+```
+
+Now, instead of the `@IO.Input` decorator we use the `@IO.Inputs` and instead of a single `InstanceData` we get a `InstanceDataCollection`. For a better readability, we choose `in_datas` (plural) as a name for our input variable. The `InstanceDataCollection` contains all `InstanceData` matching the query `dicom:mod=ct` but any other query can be used. The `InstanceDataCollection` is iteratable. To fetch a specific data or subset, use one of the following methods: `.get(index)`, `.first()` or `.filter('any:mod=ct')`.
+
+### Multiple pairwise linked Inputs and Outputs [n:n]
+
+Now for the next example, consider a module that takes all segmentation mha files `mha:mod=seg` and converts them into nifti files `nifti:mod=seg`. This is a `n:n` operation, where the number of input files is dynamic and the number of output files is dynamic. However, each input file corresponds with exqactly one output file.
+
+```Python
+class MyModule(Module):
+
+   @IO.Instance
+   @IO.Inputs('in_datas', 'mha:mod=seg', the='all MHA files to be converted')
+   @IO.Outputs('out_datas', '[basename].nii.gz', 'nifti', data='in_datas', 
+the='mha files converted to nifti')
+   def task(self, instance: Instance, in_datas: InstanceDataCollection, out_datas: InstanceDataCollection):
+     
+      # loop over all 
+      for i, in_data in enumerated(in_datas):
+         out_data = out_datas.get(i)
+      
+         # conversion 
+         mha2nifti(in_data.abspath, out_data.abspath)
+
+```
+
+Now, instead of the `@IO.Input` and `@IO.Output` decorators we use the `@IO.Inputs` and `@IO.Outputs`decorators and instead of a single `InstanceData` we get a `InstanceDataCollection`.
+
+Because we link the outputs with the inputs by using the input datas as reference data for the output datas (`data='in_datas'`), MHub-IO will automatically generate an `InstanceData` object for each input and will also take care of transferring any metadata information from each input data to it's linekd output data. This is why we can access for each input data a related output data via `out_datas.get(i)` in the body of our `task()` method.
+
+Because this time we create multiple files, we cannot specify a static file name (e.g. converted.nii.gc), because they would overwrite each other. (An excemption is, if all input_data instances already have distinct bundles). We therefore can use placeholders (as described [here](https://github.com/MHubAI/documentation/blob/main/documentation/mhubio/mhubio_modules.md#dataorganizer)) in the file path which are replaced by properties from the linked input file automatically by MHub-IO. Alternatively, one can specify the `auto_increment=True` argument on the `@IO.Outputs` decorator which will automatically append a `_{n+1}` to the file name if the file already exists on disk or the filename does already exist in the instance (including non-confirmed files).
+
+The described technique works similarly for logical output data via the `@IO.OutputDatas` decorator, including the linking to input files specified in the reference data argument `data='in_datas'`.
+
+### Dynamic Output [1:n]
+
+We can specify dynamic output by removing the `data` link in the `@IO.Outputs` decorator and manually create `InstanceData` objects. This is a highly advanced technique that usually shouldn't be used because it makes the the generated output of a Module ambiguous and prevents static interpretation.
+
+```Python
+class MyModule(Module):
+
+   @IO.Instance
+   @IO.Outputs('out_datas', 'random.txt', 'txt', the='generated output files')
+   def task(self, instance: Instance, in_datas: InstanceDataCollection, out_datas: InstanceDataCollection):
+     
+     # create files dynamically
+      for i in range(0, random.randint(1, 5)):
+
+         # specify datatype
+         dtype = DataType.fromString(f'txt:round={i+1}')
+
+         # instanciate instance data
+         # link instance data to a bundle or an instance (which is the same as calling instance.add(data) after the initialization but would prevent the auto_increment path resolution)
+         data = InstanceData('outa.txt', dtype, instance=instance, auto_increment=True) 
+
+         # generate file
+         with open(data.abspath, 'w') as f: 
+            f.write("Hello World")
+
+         # append the generated instance data to the output collection to ensure post-checks and data confirmation can be run.
+         out1.add(data)
+```
+
+Dynamic [logical output](#handling-logical-output-data) works similarly and can be required in scenarios where a dynamic number of values are generated based on a static number of input data or input files. 
+Imagine you trained an lung-nodule algorithm that takses a single CT file in nifti format and will return for each detected lung nodule some location parameters and a risk prediction.
+
+```Python
+@ValueOutput.Name('lnrisk')
+@ValueOutput.Label('Lung Nodule Risk-Score.')
+@ValueOutput.Type(int)
+@ValueOutput.Description('The predicted risk score for a single lung nodule detected by the alggorithm.')
+class LNRisk(ValueOutput):
+   pass
+
+def getLungNodulesRiskScores(dicom_dir) -> List[int]:
+   # ... find lung nodules, and report back an array of risk scores
+   return lst_scores
+   
+class MyModule(Module):
+
+   @IO.Instance
+   @IO.Input('in_data', 'dicom:mod=ct', the='chest CT image')
+   @IO.OutputDatas('lnrisks', LNRisk)
+   def task(self, instance: Instance, in_data: InstanceData, lnrisks: LNRisk):
+
+      scores = getLungNodulesRiskScores(in_data.abspath)
+
+      for nodule_i, score in enumerate(scores):
+
+         # create value output instance and set the value (we can also modify the description)
+         lnrisk = LNRisk()
+         lnrisk.description += f" (for nodule {nodule_i})"
+         lnrisk.value = score
+
+         # add to collection
+         lnrisks.add(lnrisk)
+
+```
+
+### Fully Dynamic Inputs and Outputs [n:m]
+
+An arbitrary number of inputs and outputs of any kind (without relational linking between inputs and outputs) can be reched by an independend combination of the [1:m] and [n:1] scenarios, thus by using `@IO.InputDatas` and `@IO.OutputDatas` on the same Module without specifying a data reference `datas='...'` on the `@IO.OutputDatas` decorator, keeping the number of outputs independend from the number of input data.
 
 ## Console output and Logging
 
