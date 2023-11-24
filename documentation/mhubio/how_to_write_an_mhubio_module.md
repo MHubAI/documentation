@@ -94,7 +94,7 @@ class MyModule(Module):
 
 ## Defining the output data of the module
 
-Now that we have fetched input data, we need to know where to put any generated output data. MHub-IO will keep the connection in the background. Again, instead of dealing with the underlying references or paths, we simply provide an `@IO.Output` decorator to define the data we generate. The decorator works similarly to the `@IO.Input` decorator introduced earlier. This time, we set the optional data attribute to the name of the input data. Thereby, we set the reference, saying “out_data is produced based on in_data,' whatever in_data and out_data are. We also add the parameter out_data of type InstanceData to the signature of the `task()` method. Inside the `task()` method, we can then use `out_data.abspath` to access the path that MHub-IO generated for us to put the generated data. MHub-IO would perform automated checks in the background if the file were created.
+Now that we have fetched input data, we need to know where to put any generated output data. MHub-IO will keep the connection in the background. Again, instead of dealing with the underlying references or paths, we simply provide an `@IO.Output` decorator to define the data we generate. The decorator works similarly to the `@IO.Input` decorator introduced earlier. This time, we set the optional data attribute to the name of the input data. Thereby, we set the reference, saying *'out_data is produced based on in_data,'* whatever in_data and out_data are. We also add the parameter `out_data` of type `InstanceData` to the signature of the `task()` method. Inside the `task()` method, we can then use `out_data.abspath` to access the path that MHub-IO generated for us to put the generated data. MHub-IO would perform automated checks in the background if the file were created.
 
 ```python
 @IO.Config('fast', bool, True, the='option to enable fast mode')
@@ -137,7 +137,7 @@ the='processed ct scan')
 
 ## Handling Logical Output Data
 
-Unlike segmentation models, classification or prediction models typically don't produce a file-based output, but a single prediction number or vector. Technically, this is also true for segmentation models, however, due to their pre- and post-processing chain, they usually generate an image as output and provide metadata such as orientation and position in 3D image space for their numerical output. Similarly, some prediction and classification models can produce a file-based report, such as a JSON, CSV, or TXT file. You can use the `@IO.Output` decorator to export these files. However, if your model predicts a one-dimensional vector, we provide a different set of decorators to describe and store this data. This is of interest to you even if your model generates its own file. This is because we store this data internally in a structured format and provide a flexible export module to create JSON reports, for example.
+Unlike segmentation models, classification or prediction models typically don't produce a file-based output, but a single prediction number or vector. Technically, this is also true for segmentation models, however, due to their pre- and post-processing chain, they usually generate an image as output and provide metadata such as orientation and position in 3D image space for their numerical output. Similarly, some prediction and classification models can produce a file-based report, such as a JSON, CSV, or TXT file. You can use the `@IO.Output` decorator to export these files. However, if your model predicts a one-dimensional vector, we provide a different set of decorators to describe and store this data. This is of interest to you even if your model generates its own file. This is because we store this data internally in a structured format and provide a flexible export module to create [JSON reports](mhubio_modules.md#reportexporter), for example.
 
 ### Defining a Value Output
 
@@ -179,7 +179,7 @@ class MyModule(Module):
    @IO.Instance
    @IO.Input('in_data', the='chest ct scan')
    @IO.OutputData('ags', AgatstonScore, data='in_data', the='agatston score')
-   def task(self, instance: Instance, in_data: InstanceData, out_data: InstanceData):
+   def task(self, instance: Instance, in_data: InstanceData, ags: AgatstonScore):
       print('input data: ' + in_data.abspath)
       
       # set the value on your output value
@@ -190,10 +190,10 @@ As shown in the example above, you simply set the `value` to the instance of you
 
 ### Defining a Vector Output
 
-With class prediction models, you usually have a little more information. Starting with the classes that the model can predict, each of which deserves its own label and description, you can generate a probability for each class, in addition to specifying the model's final decision. This type of vector output can be stored in a class output. In the following example, we define a class output for the risk category, which can be either low, medium, or high.
+With class prediction models, you usually have a little more information. They are based on the classes that the model can predict, each of which deserves its own label and description. In addition, each class may have its own probability that you want to specify along with the final decision of the model (the predicted class). This type of vector output can be stored in a class output. In the following example, we define a class output for the risk category, which can be either low, medium or high.
 
 First, define a class that inherits from `ClassOutput` to describe your predicted class. In this example, we define a class output for a model that predicts the risk category.
-Similarly to teh value output, we specify a name, label and description (note, we use decorators from `@IO.ClassOutput` instead of `@IO.ValueOutput`).
+Similarly to a value output as introduced before, we specify a name, label and description (note, we use decorators from `@IO.ClassOutput` instead of `@IO.ValueOutput`).
 
 ```python
 from mhubio.core import ClassOutput
@@ -205,7 +205,9 @@ class RiskCategory(ClassOutput):
    pass
 ```
 
-Now we need to define the classes that the model can predict. For each class we can specify a `@ClassOutput.Class(classID: str | int, label: str, the: str)`. The decorator `@ClassOutput.Class` is the only decorator that can be used multiple times. You use one per output class you want to define. You can then later reference each class by its `ClassID`. The classID can be specified either numerically or as a string. The "Label" is a human readable name for the class and "The" is as usual a human readable description of the class.
+Now, we need to define the classes that the model can predict. For each class we can specify a `@ClassOutput.Class(classID: str | int, label: str, the: str)`. The decorator `@ClassOutput.Class` is the only decorator that can be used multiple times. You use one per output class you want to define. You can then later reference each class by its `ClassID`. The classID can be specified either numerically or as a string. Whenn choosing a string-based ClassID, the string should be as short as possible and contain only alphanumerical characters, understcores and dashes. Specify a human readable class name in `label: str` and as usual a human readable description of the class in the `the: str` argument.
+
+```python
 
 ```python
 @ClassOutput.Name('rc')
@@ -218,7 +220,7 @@ class RiskCategory(ClassOutput):
    pass
 ```
 
-Extending our example from earlyer, we can now provide our class output format similarly to the value output using an `@IO.OutputData` decorator on our Module's `task()` method.
+Extending our example from earlier, we can now provide our class output format similarly to the value output using an `@IO.OutputData` decorator on our Module's `task()` method.
 
 ```python
 @IO.Config('fast', bool, True, the='option to enable fast mode')
@@ -230,7 +232,7 @@ class MyModule(Module):
    @IO.Input('in_data', the='chest ct scan')
    @IO.OutputData('ags', AgatstonScore, data='in_data', the='agatston score')
    @IO.OutputData('rc', RiskCategory, data='in_data', the='risk category derived from the agatston score')
-   def task(self, instance: Instance, in_data: InstanceData, out_data: InstanceData):
+   def task(self, instance: Instance, in_data: InstanceData, ags: AgatstonScore, rc: RiskCategory):
       print('input data: ' + in_data.abspath)
       
       # set the value on your output value
@@ -239,30 +241,34 @@ class MyModule(Module):
       # set the class output
       rc.value = 'moderate'   # use the classID here
 
-      # optionally assign probabilities to each class
+      # optionally assign probabilities to each classses simultaneously
       rc.assign_probabilities({
          'low': 0.1,
          'moderate': 0.7,
          'high': 0.2
       })
 
-      # or assign the probability for each class separately
+      # you can also pass a list with probabilities in the same order 
+      #  as the classes were specified in the decorators
+      rc.assign_probabilities([0.1, 0.7, 0.2])
+
+      # or assign the probability for each class separately via its classID
       rc['low'].probability = 0.1
       rc['moderate'].probability = 0.7
       rc['high'].probability = 0.2
 ```
 
-We demonstrated how to set the prediction values either using the `assign_probabilities` method or by setting the probability for each class individually. You can access each class by class ID (e.g. `rc['moderate']` to access the moderate class). If you have specified integer class IDs, you can also pass a list instead of a dictionary to the `assign_probabilities` method and set the probability for each class in the order you specified the classes in the decorator.
+We demonstrated how to set the prediction values either using the `assign_probabilities` method or by setting the probability for each class individually. You can access each class by class ID (e.g. `rc['moderate']` to access the moderate class). You can also pass a list instead of a dictionary to the `assign_probabilities` method and set the probability for each class in the order you specified the classes in the decorators.
 
 ## Handling Multiple and Dynamic Inputs and Outputs
 
-In some cases, we want to create a module that takes more than one input file or generates more than one output file. Simply use more than one `@IO.Input` or multiple `@IO.Output` decorators to specify each input and each output explicitly. This will be all you need for most scenarios and should always be the preferred method.
+In some cases we want to create a module that takes more than one input file or generates more than one output file. Simply use more than one `@IO.Input` or multiple `@IO.Output` decorators to explicitly specify each input and each output. This is all you need for most scenarios and should always be the preferred method.
 
-However, sometimes this is not enought and we want to specify inputs or outputs of dynamic length. MHub-IO is capable of handling these cases as well. Note, that this is a more advanced use case thus carefully consider if what you try to achieve cannot be done by using multiple single input or output decorators in the favor of the highest degree of readablility of your Module implementation.
+However, sometimes this is not enough and we want to specify dynamic length inputs or outputs. MHub-IO is able to handle these cases as well. Note that this is an advanced use case. Therefore, carefully consider whether what you want to achieve cannot be accomplished by using multiple individual input or output decorators to optimize the readability of your module implementation.
 
 ### Dynamic Input [1:n]
 
-Let's face some examples in which dynamic input actually is required. For instance, consider a module that takes all dicom CT files and print's the number of these files. This has little practical relevance, however, there are plenty scenarios where such an `n:1` operation is reuired, like reporting the maximal HU values over several files as data output.
+Let's look at some examples where dynamic input is actually required. Take, for example, a module that takes in all dicom CT files and outputs the number of these files. While this has little practical significance, there are many scenarios where such an `n:1` operation is required, e.g. reporting the maximum HU values for multiple files.
 
 ```Python
 @ValueOutput.Name('maxHU')
@@ -301,11 +307,10 @@ class MyModule(Module):
 
    @IO.Instance
    @IO.Inputs('in_datas', 'mha:mod=seg', the='all MHA files to be converted')
-   @IO.Outputs('out_datas', '[basename].nii.gz', 'nifti', data='in_datas', 
-the='mha files converted to nifti')
+   @IO.Outputs('out_datas', '[basename].nii.gz', 'nifti', data='in_datas', the='mha files converted to nifti')
    def task(self, instance: Instance, in_datas: InstanceDataCollection, out_datas: InstanceDataCollection):
      
-      # loop over all 
+      # loop over all in_data-out_data pairs
       for i, in_data in enumerated(in_datas):
          out_data = out_datas.get(i)
       
@@ -318,7 +323,7 @@ Now, instead of the `@IO.Input` and `@IO.Output` decorators we use the `@IO.Inpu
 
 Because we link the outputs with the inputs by using the input datas as reference data for the output datas (`data='in_datas'`), MHub-IO will automatically generate an `InstanceData` object for each input and will also take care of transferring any metadata information from each input data to it's linekd output data. This is why we can access for each input data a related output data via `out_datas.get(i)` in the body of our `task()` method.
 
-Because this time we create multiple files, we cannot specify a static file name (e.g. converted.nii.gc), because they would overwrite each other. (An excemption is, if all input_data instances already have distinct bundles). We therefore can use placeholders (as described [here](https://github.com/MHubAI/documentation/blob/main/documentation/mhubio/mhubio_modules.md#dataorganizer)) in the file path which are replaced by properties from the linked input file automatically by MHub-IO. Alternatively, one can specify the `auto_increment=True` argument on the `@IO.Outputs` decorator which will automatically append a `_{n+1}` to the file name if the file already exists on disk or the filename does already exist in the instance (including non-confirmed files).
+Because this time we create multiple files, we cannot specify a static file name (e.g. converted.nii.gz), because they would overwrite each other. (An excemption is, if all input_data instances already have distinct bundles). We therefore can use placeholders (as described [here](https://github.com/MHubAI/documentation/blob/main/documentation/mhubio/mhubio_modules.md#dataorganizer)) in the file path which are replaced by properties from the linked input file automatically by MHub-IO. Alternatively, one can specify the `auto_increment=True` argument on the `@IO.Outputs` decorator which will automatically append a `_{n+1}` to the file name if the file already exists on disk or the filename does already exist in the instance (including non-confirmed files).
 
 The described technique works similarly for logical output data via the `@IO.OutputDatas` decorator, including the linking to input files specified in the reference data argument `data='in_datas'`.
 
@@ -331,7 +336,7 @@ class MyModule(Module):
 
    @IO.Instance
    @IO.Outputs('out_datas', 'random.txt', 'txt', the='generated output files')
-   def task(self, instance: Instance, in_datas: InstanceDataCollection, out_datas: InstanceDataCollection):
+   def task(self, instance: Instance, out_datas: InstanceDataCollection):
      
      # create files dynamically
       for i in range(0, random.randint(1, 5)):
@@ -340,19 +345,21 @@ class MyModule(Module):
          dtype = DataType.fromString(f'txt:round={i+1}')
 
          # instanciate instance data
-         # link instance data to a bundle or an instance (which is the same as calling instance.add(data) after the initialization but would prevent the auto_increment path resolution)
+         # link instance data to a bundle or an instance (which is the same as calling 
+         #  instance.add(data) after the initialization but would prevent the auto_increment path resolution)
          data = InstanceData('outa.txt', dtype, instance=instance, auto_increment=True) 
 
          # generate file
          with open(data.abspath, 'w') as f: 
             f.write("Hello World")
 
-         # append the generated instance data to the output collection to ensure post-checks and data confirmation can be run.
+         # append the generated instance data to the output collection to ensure 
+         #  post-checks and data confirmation can be run.
          out1.add(data)
 ```
 
 Dynamic [logical output](#handling-logical-output-data) works similarly and can be required in scenarios where a dynamic number of values are generated based on a static number of input data or input files.
-Imagine you trained an lung-nodule algorithm that takses a single CT file in nifti format and will return for each detected lung nodule some location parameters and a risk prediction.
+Imagine, you trained a lung-nodule algorithm that takses a single CT file in nifti format and will return for each detected lung nodule some location parameters and a risk prediction.
 
 ```Python
 @ValueOutput.Name('lnrisk')
