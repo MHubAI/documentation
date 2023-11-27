@@ -226,6 +226,42 @@ The converted files will be named according to the pattern specified under `conv
 
 If you convert only a single file (e.g. a Dicom image to Nifti), you can set `converted_file_name` to a fixed filename like `image.nii.gz`. However, you shouldn't worry too much about filenames and usually keep this setting. If you need a specific filename for your output, you can use the DataOrganizer module to rename the files after conversion.
 
+### MhaConverter
+
+`from mhubio.modules.converter.MhaConverter import MhaConverter`
+
+The *MhaConverter* module is a simple module to convert images in dicom, nrrd or nifti format into the mha format. The module behaves similar to the *NiftiConverter* described earlier.
+
+We support two different conversion backends, Plastimatch and the [Panimg](https://pypi.org/project/panimg/) conversion library. YOu can specify which bakend to use via the `engine: plastimatch|panimg` attribute. The default is `plastimatch`.
+
+```yaml
+MhaConverter:
+  in_datas: dicom|nrrd|nifti
+  engine: plastimatch
+  bundle_name: mha
+  converted_file_name: '[filename].mha'
+  allow_multi_input: false
+  overwrite_existing_file: false
+```
+
+### TiffConverter
+
+`from mhubio.modules.converter.TiffConverter import TiffConverter`
+
+The *TiffConverter* module is a simple module to generate tiff files from dicom images.
+The module behaves similar to the *NiftiConverter* described earlier.
+
+***NOTE**: The TiffConverter module is currently only used for the conversion of dicom images to tiff files. We plan to support other data types in the future.*
+
+```yaml
+TiffConverter:
+  in_datas: dicom:mod=sm
+  bundle_name: tiff
+  converted_file_name: '[filename].tiff'
+  allow_multi_input: false
+  overwrite_existing_file: false
+```
+
 ### DsegConverter
 
 `from mhubio.modules.converter.DsegConverter import DsegConverter`
