@@ -232,7 +232,7 @@ If you convert only a single file (e.g. a Dicom image to Nifti), you can set `co
 
 The *MhaConverter* module is a simple module to convert images in dicom, nrrd or nifti format into the mha format. The module behaves similar to the *NiftiConverter* described earlier.
 
-We support two different conversion backends, Plastimatch and the [Panimg](https://pypi.org/project/panimg/) conversion library. YOu can specify which bakend to use via the `engine: plastimatch|panimg` attribute. The default is `plastimatch`.
+We support two different conversion backends, Plastimatch and the [Panimg](https://pypi.org/project/panimg/) conversion library. You can specify which bakend to use via the `engine: plastimatch|panimg` attribute. The default is `plastimatch`.
 
 ```yaml
 MhaConverter:
@@ -297,19 +297,21 @@ We strongly recommend that you choose the latter method. You set the metadata of
 
 `from mhubio.modules.converter.RTStructConverter import RTStructConverter`
 
-The RTStructConverter converts DICOMSEG into RTStruct. This is useful if you want to use the segmentation e.g. in a treatment planning system (TPS) that does not support DICOMSEG.
-
-***NOTE**: We currently only support conversion from niffti, nrrd or mha to RT -Struct via DICOMSEG. Since the data representation in e.g. NIFTI files may differ depending on the source, conversion via a standardized format (such as DICOMSEG) ensures that workflows (e.g. dicom-dicomseg and dicom-rtstruct) provide similar results. Since this requires a significant amount of time, we plan to support direct conversion of NIFTI / NRRD / MHA files in the future.*
+The RTStructConverter converts segmentations from NIFTI, NRRD or MHA into RTStruct. This is useful if you want to use the segmentation e.g. in a treatment planning system (TPS) that does not support DICOMSEG.
 
 ```yaml
-DsegConverter:
+RTStructConverter:
   target_dicom: dicom:mod=ct
-  source_seg: dicomseg:mod=seg
+  source_segs: nifti|nrrd|mha:mod=seg:roi=*
+  skip_empty_slices: True
+  converted_file_name: seg.dcm
+  bundle_name: null
+  segment_id_meta_key: roi
   use_pin_hole: False
   approximate_contours: True
 ```
 
-Similar to the DSegConverter, the `target_dicom` specifies the source DICOM which the RT-Struct will be mapped to. The `source_seg` specifies the source DICOMSEG which will be converted to RT-Struct. The `use_pin_hole` flag specifies whether the RT-Struct should be created using a pin hole algorithm. If set to true, lines will be erased through your mask such that each separate region within your image can be encapsulated via a single contour instead of contours nested within one another. Use this if your RT Struct viewer of choice does not support nested contours / contours with holes. The `approximate_contours` flag specifies defines whether or not approximations are made when extracting contours from the input mask. Setting this to false will lead to much larger contour data within your RT Struct so only use this if as much precision as possible is required.
+Similar to the DSegConverter, the `target_dicom` specifies the source DICOM which the RT-Struct will be mapped to. The `source_segs` specifies the source segmentation file or files which will be converted to RT-Struct. When `skip_empty_slices` is enabled, empty segmentations will be ignored. The `converted_file_name` is used to set the file name used internally and the `bundle_name` specifies weather to create a bundle internally (you certainly don't need to touch these parameters; to change the file name of the RT structure exported from MHub, use the DataOrganizer module instead). The `segment_id_meta_key` works exactly as explained under the [DSegConverter](./#DsegConverter) module above. The `use_pin_hole` flag specifies whether the RT-Struct should be created using a pin hole algorithm. If set to true, lines will be erased through your mask such that each separate region within your image can be encapsulated via a single contour instead of contours nested within one another. Use this if your RT Struct viewer of choice does not support nested contours / contours with holes. The `approximate_contours` flag specifies defines whether or not approximations are made when extracting contours from the input mask. Setting this to false will lead to much larger contour data within your RT Struct so only use this if as much precision as possible is required.
 
 ## Process Data
 
