@@ -1,5 +1,5 @@
 
-# T2 - 
+# T2 - Run Custom MHub Lung Segmentation Workflow on Chest CT in Nifti Format
 
 - Difficulty: Intermediate
 - Duration: 45 minutes
@@ -40,13 +40,19 @@ For those who just want a quick walkthrough to th esteps to follow along, here's
 2. Setup a turorial folder under your desktop and create an empty custom config file.
   
   ```bash
-  mkdir -p $in $out/nrrd  $out/nifti $out/dicom && touch $config
+  mkdir -p $in $in/nrrd $in/nifti $in/dicom $(dirname $config) && touch $config
   ```
 
-3. Download the custom config of this tutorial.
+3. Download the sample data for this tutorial.
 
   ```bash
-  wget <to be replaced once public> -O $config
+  wget http://www.slicer.org/w/img_auth.php/3/31/CT-chest.nrrd -O $in/nrrd/CT-chest.nrrd
+  ```
+
+4. Download the custom config created in this tutorial.
+
+  ```bash
+  wget https://raw.githubusercontent.com/MHubAI/documentation/main/tutorials/run_lungmask_on_chestct_in_nifti_format/custom.yml -O $config
   ```
 
 4. Run the custom workflow.
@@ -58,7 +64,7 @@ docker run --rm -t --gpus all -v $in:/app/data/input_data:ro -v $out:/app/data/o
 5. Done, your will find the exported results under the `mhub_tutorial_002/output` folder.
 
   ```bash
-  cd $out && tree .
+  tree $out
   ```
 
 ## Hands on
@@ -102,7 +108,7 @@ If you don't have data available or if you want to go with public sample data, t
 
 ```bash
 # if you're at a terminal, you can run the followin command to download the sample data
-wget http://www.slicer.org/w/img_auth.php/3/31/CT-chest.nrrd -O $out/nrrd/CT-chest.nrrd
+wget http://www.slicer.org/w/img_auth.php/3/31/CT-chest.nrrd -O $in/nrrd
 ```
 
 You will find the sample file in the `data/nrrd` folder. You can verify that your folder structure looks like ours by running `tree .` in your terminal. You should see something like this:
