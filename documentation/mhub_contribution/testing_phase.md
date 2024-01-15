@@ -36,8 +36,8 @@ Now that you've found some suitable data to test your implementation on, you can
 
     The testing procedure takes a bit of time on your and our side so please make sure to test and submit the right code.
 
-    1.1. Ensure that your PR is up to date with our `main` branch.
-    1.2. Commit all changes to your local repository.
+    1.1. Ensure that your PR is up to date with our `main` branch.  
+    1.2. Commit all changes to your local repository.  
     1.3. Push all changes to your remote fork.
 
 2. Get the latest MHub base image

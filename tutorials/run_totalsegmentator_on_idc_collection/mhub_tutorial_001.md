@@ -1,4 +1,4 @@
-# Tutorial 1
+# T1 - Run TotalSegmentator on IDC Collection
 
 - Difficulty: Beginner, Easy
 - Duration: 30 minutes
@@ -30,7 +30,7 @@ For those who just want a quick walkthrough to th esteps to follow along, here's
   export out=$(realpath -m ~/Desktop/mhub_tutorial_001/output)
   ```
 
-2. Setup a turorial folder under your desktop
+2. Setup a turorial folder under your desktop.
   
   ```bash
   mkdir -p $in $out
@@ -134,7 +134,7 @@ Now with some data downloaded, let's move on to the next step and segment them b
 
 In case you've some experience with AI models, especially in the medical domain, you may expect that we need to install and setup an environment for the model and that we have to organize or convert our data into a specific format as requested by the model.
 
-You will see that when using any MHub deployed model, we don't have to do any og these and can directly run our model on the data. That#s because all MHub models are bundled with all their requirements into a single executable container which means zero setup efforts. Furthermore, MHub harmonizes and standardizes the input and output data of all MHub models. If you used the TotalSegmentator, model that we will run in a second, before, you might know that TotalSegmentator takes an input file in the NIFTI format. Usually that means we'd first need to convert our downloaded data, which is currently in DICOM format and that we need to come up with our own data organization strategy. With MHub, however, we can run on TotalSegmentator directly on the dicom data, utilizing the great data organization that dicom already provides.
+You will see that when using any MHub deployed model, we don't have to do any og these and can directly run our model on the data. That's because all MHub models are bundled with all their requirements into a single executable container which means zero setup efforts. Furthermore, MHub harmonizes and standardizes the input and output data of all MHub models. If you used the TotalSegmentator, model that we will run in a second, before, you might know that TotalSegmentator takes an input file in the NIFTI format. Usually that means we'd first need to convert our downloaded data, which is currently in DICOM format and that we need to come up with our own data organization strategy. With MHub, however, we can run on TotalSegmentator directly on the dicom data, utilizing the great data organization that dicom already provides.
 
 That beeing said, let's go to the [models page](https://mhub.ai/models) on the MHub website [mhub.ai](https://mhub.ai) and search for the TotalSegmentator model. The following link will take you there directly:
 
