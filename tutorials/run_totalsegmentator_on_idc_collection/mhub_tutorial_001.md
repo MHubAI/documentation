@@ -17,6 +17,43 @@ Note that most machine learning algorithms also require an NVIDIA GPU and CUDA. 
 
 To download data from IDC, you need to install the [s5cmd download utility](https://github.com/peak/s5cmd). If you want to follow these instructions with your own DICOM image data, you can skip this step.
 
+To swiftly print file tree structures you need to have [tree](https://wiki.ubuntuusers.de/tree/) installed. Try to run `tree --version` in your terminal. If `tree` is not found, install it with `apt-get install tree`.
+
+## TLDR
+
+For those who just want a quick walkthrough to th esteps to follow along, here's the short version. If you prefer a more detailed guide and some background knowledge, you can jump to [Hands on](#hands-on). Of course you can come here later for a quick recap.
+
+1. Set the folowing environment variables or replace them by absolute paths in all of the below commands.
+
+  ```bash
+  export in=$(realpath -m ~/Desktop/mhub_tutorial_001/data)
+  export out=$(realpath -m ~/Desktop/mhub_tutorial_001/output)
+  ```
+
+2. Setup a turorial folder under your desktop
+  
+  ```bash
+  mkdir -p $in $out
+  ```
+
+3. Download public sample data from the [NLST collection](https://portal.imaging.datacommons.cancer.gov/explore/filters/?collection_id=NCI_Trials&collection_id=nlst) from [IDC](https://portal.imaging.datacommons.cancer.gov/explore/).
+
+  ```bash
+  s5cmd --no-sign-request --endpoint-url https://s3.amazonaws.com cp 's3://idc-open-data/8e4ccba1-74f4-4ffa-93f1-2a0263c8c9cf/*' $in && s5cmd --no-sign-request --endpoint-url https://s3.amazonaws.com cp 's3://idc-open-data/7271ab1d-bb03-4ca9-9457-dabcafd4d33f/*' $in && s5cmd --no-sign-request --endpoint-url https://s3.amazonaws.com cp 's3://idc-open-data/5541d783-4c8b-4d1b-8eae-99a868012082/*' $in && echo "Downloaded $(ls $in | wc -l) files"
+  ```
+
+3. Run the [MHub deployment of TotalSegmentator](http://mhub.ai/models/totalsegmentator) on the downloaded data.
+
+  ```bash
+  docker run --rm -t --gpus all -v $in:/app/data/input_data:ro -v $out:/app/data/output_data mhubai/totalsegmentator
+  ```
+
+4. Done, your will find the generated segmentation files in the `mhub_tutorial_001/output` folder.
+
+  ```bash
+  cd $out && tree .
+  ```
+
 ## Hands on
 
 Okay, let's get on it. First we need some CT images to run our model on. The Imaging Data Commons has a huge browsable database of publicly available medical images that we will use in this turorial. You will find many different collections containing image data of various modalities (e.g. CT, MR, XRay, etc.) and body parts (e.g. brain, lung, etc.). For this tutorial, we will use the [NLST collection](https://portal.imaging.datacommons.cancer.gov/explore/filters/?collection_id=NCI_Trials&collection_id=nlst). This collection contains all CT exams from the National Lung Screening Trial (NLST), which was conducted to determine whether screening with low-dose CT could reduce mortality from lung cancer for persons at high risk for lung cancer at 33 U.S. medical centers. Participants were randomly assigned to undergo three annual screenings between 2002-2004.
