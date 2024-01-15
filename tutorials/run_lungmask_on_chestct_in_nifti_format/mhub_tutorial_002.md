@@ -1,10 +1,9 @@
-
 # T2 - Run Custom MHub Lung Segmentation Workflow on Chest CT in Nifti Format
 
 - Difficulty: Intermediate
 - Duration: 45 minutes
 - Knowledge requirements:  
-  minimal knowledge about medical imaging data and the [nifti format](https://nifti.nimh.nih.gov/nifti-1), baic ubuntu and terminal knowledge, basic knowledge about docker, basic knowledge about MHub workflows
+  minimal knowledge about medical imaging data and the [nifti format](https://nifti.nimh.nih.gov/nifti-1), basic knowledge in using the ubuntu terminal, basic knowledge about Docker, basic knowledge about MHub
 
 ## Introduction
 
