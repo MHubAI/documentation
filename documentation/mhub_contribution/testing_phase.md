@@ -71,7 +71,8 @@ Now that you've found some suitable data to test your implementation on, you can
 
 4. Download the Sample Data
 
-    Now, you need to download the sample data from IDC.
+    Now, you need to download the sample data from IDC.  
+    [IDC User Guide - Downloading Data](https://learn.canceridc.dev/data/downloading-data)
 
 5. Run the Model
 
@@ -82,7 +83,13 @@ Now that you've found some suitable data to test your implementation on, you can
     docker run dev/$model_name:latest -v /path/to/your/sample/data:/app/data/input_data:ro -v /path/to/your/output/folder:/app/data/output_data 
     ```
 
-6. Inspect the Output
+6. Inspect the Console Output
+
+    MHub captures all `print()` statements in log files and displays a clean process overview on the console. Make sure that no uncaptured output is generated in your implementation (uncaptured output can generate repeated lines, omitted lines or additional text that should not occur). If your implementation does not generate clean output, your model cannot be accepted.
+
+    **Note**: Some Python packages contain print statements in `__init__.py` files or at file level in otherwise imported files that are executed at import time. However, in the MHUb workflow, we can only capture the console output during the actual execution (i.e. within the `task()` method of a [module](../mhubio/how_to_write_an_mhubio_module.md#the-task-method)). You can solve this problem by moving the import statements into the `task()` method of your module or by wrapping your implementation in a cli-script and then using [self.subprocess](../mhubio/how_to_write_an_mhubio_module.md#running-a-subprocess-from-a-module) to execute that cli-script.
+
+7. Inspect the File Output
 
     Now you can inspect the output of your model. If you are satisfied with the output (e.g., the output looks as expected from the model or algorithm you are deploying to MHub), you can proceed to the next step.
 
@@ -92,7 +99,7 @@ Now that you've found some suitable data to test your implementation on, you can
 
     - Ask yourself, if you were to run the algorithm the very first time without any knowlege beyond what is provided in the [model card](../mhub_models/model_json.md), is the output you are seeing what you would expect, useful, transparent and simple to understand?
 
-7. Prepare the Test Results
+8. Prepare the Test Results
 
     In order for us to verify your test results, we need to know the sample data you choose to run your model on as well as the output your model produced.
 
@@ -104,7 +111,7 @@ Now that you've found some suitable data to test your implementation on, you can
 
     6.2. Upload the zip file to a publicly accessible location (e.g. GitHub, Google Drive, Dropbox, etc.).
 
-8. Submit your Test Results
+9. Submit your Test Results
 
     After you have successfully tested your model and ensured that it delivers the expected results for all sample data, you can send us your test results.
 
