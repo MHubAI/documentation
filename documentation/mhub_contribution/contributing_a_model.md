@@ -69,6 +69,8 @@ We have a public board where you can track the progress and current status of yo
 
     Once we reviewed your code, we might request changes or ask questions about your submissions. Please address all our requested changes  and respond to all our  comments in a timely manner. If we get no response within two weeks we may close your PR. You may reopen it at a later time when you are ready to address our comments.
 
+    If you have considered all comments and changes and your PR can be reviewed again, create a new comment starting with `/review` to request a review by the MHUb team. You can add additional comments after two line breaks or submit a comment that contains nothing but the keyword `/review`.
+
 4. Ready for Testing
 
     Once your submission satisfies all our requirements and all open issues, questions and comments have been adressed, your submission is ready for testing. Please follow the instructions in the [Testing Phase](../mhub_contribution/testing_phase.md) to prepare your submission for testing and provide us with the requested information.

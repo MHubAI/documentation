@@ -122,7 +122,7 @@ Now that you've found some suitable data to test your implementation on, you can
     For workflows starting with a DicomImporter:
 
     ```markdown
-    ## Test Results
+    /test
 
     general:
     - IDC Verson: <enter IDC version>
@@ -143,7 +143,8 @@ Now that you've found some suitable data to test your implementation on, you can
     For workflows starting with a FileStructureImporter:
 
     ```markdown
-
+    /test
+    
     general:
     - IDC Verson: <enter IDC version>
     - Output: <provide zipped output folder if model run on all cases>
