@@ -121,47 +121,45 @@ Now that you've found some suitable data to test your implementation on, you can
 
     For workflows starting with a DicomImporter:
 
-    ```markdown
+    ````markdown
     /test
 
-    general:
-    - IDC Verson: <enter IDC version>
-    - Output: <provide zipped output folder if model run on all cases>
+    ```yaml
+    sample:
+      idcv: <enter IDC version>
+      data:
+        - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1>
+        aws: <enter URL to your test case 1>
+        path: dicom
 
-    case 1: 
-    - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1>
-    - AWS URL: <enter URL to your test case 1>
-    - Output: <provide zipped output folder per case if model run per case>
-
-    case 2:
-    ...
-
-    comments:
-    <write any additional comments here>
+    reference:
+      url: <url to zip file containing model output>
     ```
+    ```````
+
+
 
     For workflows starting with a FileStructureImporter:
 
-    ```markdown
+    ````markdown
     /test
-    
-    general:
-    - IDC Verson: <enter IDC version>
-    - Output: <provide zipped output folder if model run on all cases>
 
-    case 1 - input 1: 
-    - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1>
-    - AWS URL: <enter URL to your test case 1>
-    - Input: <the relative path where the instance is loaded into, e.g. `case1/ct`>
+    ```yaml
+    sample:
+      idcv: <enter IDC version>
+      data:
+        - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1 first input>
+        aws: <enter URL to your test case 1 first input>
+        path: <the relative path where the instance is loaded into, e.g. `case1/ct`>
+        - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1 second input>
+        aws: <enter URL to your test case 1 second input>
+        path: <the relative path where the instance is loaded into, e.g. `case1/mr`>
 
-    case 1 - input 2:
-    - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1>
-    - AWS URL: <enter URL to your test case 1>
-    - Input: <the relative path where the instance is loaded into, e.g. `case1/mr`>
+        - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 2 first input>
+        aws: <enter URL to your test case 2 first input>
+        path: <the relative path where the instance is loaded into, e.g. `case2/ct`>
 
-    case 2 - input 1:
-    ...
-
-    comments:
-    <write any additional comments here>
+    reference:
+      url: <url to zip file containing model output>
     ```
+    ````
