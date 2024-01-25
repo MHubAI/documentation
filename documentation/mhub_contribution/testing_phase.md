@@ -53,8 +53,8 @@ Now that you've found some suitable data to test your implementation on, you can
     To create your model, first navigate to your project folder where your Dockerfile is located. `$model_name` is the name of your model. Please replace *"my_model "* with the name of your model.
 
     ```bash
-    export model_name="my_model"
-    cd /path/to/your/projects/models/models/$model_name/dockerfiles
+    MHUB_MODEL_NAME="my_model"
+    cd /path/to/your/projects/models/models/$MHUB_MODEL_NAME/dockerfiles
     ```
 
     When you build your model now, you need to reference the MHub implementation code. Since your model is not yet submitted, we cannot automatically pull your implementation from our models repository as we normally would. Therefore, you need to provide the URL of the form you used to create the PR (this is the repository where your model resides until the PR is merged).
@@ -62,12 +62,12 @@ Now that you've found some suitable data to test your implementation on, you can
     Then create your model with the following command.
 
     ```bash
-    docker build --no-cache --build-arg MHUB_MODELS_REPO=https://github.com/your_username/models-fork::branch -t dev/$model_name:latest .
+    docker build --no-cache --build-arg MHUB_MODELS_REPO=https://github.com/your_username/models-fork::branch -t dev/$MHUB_MODEL_NAME:latest .
     ```
 
     Again, you must change `https://github.com/your_username/models-fork` to the URL of your fork of our models repository and optionally specify the name of the branch separated by `::` in the URL.
 
-    The command will create an image with the name `dev/$model_name:latest`. You can use any other name, but it is a good idea to organize your images.
+    The command will create an image with the name `dev/$MHUB_MODEL_NAME:latest`. You can use any other name, but it is a good idea to organize your images.
 
 4. Download the Sample Data
 
@@ -80,7 +80,8 @@ Now that you've found some suitable data to test your implementation on, you can
     Make sure to update the `/path/to/your/sample/data` and `/path/to/your/output/folder` with the paths to your sample data and an *empty* output folder.
 
     ```bash
-    docker run dev/$model_name:latest -v /path/to/your/sample/data:/app/data/input_data:ro -v /path/to/your/output/folder:/app/data/output_data 
+    MHUB_OUTPUT_DIR=/path/to/your/output/folder
+    docker run dev/$MHUB_MODEL_NAME:latest -v /path/to/your/sample/data:/app/data/input_data:ro -v $MHUB_OUTPUT_DIR:/app/data/output_data 
     ```
 
 6. Inspect the Console Output
@@ -106,10 +107,10 @@ Now that you've found some suitable data to test your implementation on, you can
     6.1. Zip your models output folder.
 
     ```bash
-    zip -r /path/to/your/output/folder.zip /path/to/your/output/folder
+    (cd $MHUB_OUTPUT_DIR && zip -r - ./*) > output.zip
     ```
 
-    6.2. Upload the zip file to a publicly accessible location (e.g. GitHub, Google Drive, Dropbox, etc.).
+    6.2. Upload the zip file `output.zip` to a publicly accessible location (e.g. GitHub, Google Drive, Dropbox, etc.).
 
 9. Submit your Test Results
 
@@ -136,8 +137,6 @@ Now that you've found some suitable data to test your implementation on, you can
       url: <url to zip file containing model output>
     ```
     ```````
-
-
 
     For workflows starting with a FileStructureImporter:
 
