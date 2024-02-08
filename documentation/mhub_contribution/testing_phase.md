@@ -127,10 +127,10 @@ Now that you've found some suitable data to test your implementation on, you can
 
     ```yaml
     sample:
-      idcv: <enter IDC version>
+      idc_version: <enter IDC version>
       data:
         - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1>
-        aws: <enter URL to your test case 1>
+        aws_url: <enter URL to your test case 1>
         path: dicom
 
     reference:
@@ -145,17 +145,17 @@ Now that you've found some suitable data to test your implementation on, you can
 
     ```yaml
     sample:
-      idcv: <enter IDC version>
+      idc_version: <enter IDC version>
       data:
         - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1 first input>
-        aws: <enter URL to your test case 1 first input>
+        aws_url: <enter URL to your test case 1 first input>
         path: <the relative path where the instance is loaded into, e.g. `case1/ct`>
         - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1 second input>
-        aws: <enter URL to your test case 1 second input>
+        aws_url: <enter URL to your test case 1 second input>
         path: <the relative path where the instance is loaded into, e.g. `case1/mr`>
 
         - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 2 first input>
-        aws: <enter URL to your test case 2 first input>
+        aws_url: <enter URL to your test case 2 first input>
         path: <the relative path where the instance is loaded into, e.g. `case2/ct`>
 
     reference:
