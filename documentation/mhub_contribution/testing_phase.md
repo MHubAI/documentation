@@ -129,14 +129,14 @@ Now that you've found some suitable data to test your implementation on, you can
     sample:
       idc_version: <enter IDC version>
       data:
-        - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1>
+      - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1>
         aws_url: <enter URL to your test case 1>
         path: dicom
 
     reference:
       url: <url to zip file containing model output>
     ```
-    ```````
+    ````
 
     For workflows starting with a FileStructureImporter:
 
@@ -147,18 +147,36 @@ Now that you've found some suitable data to test your implementation on, you can
     sample:
       idc_version: <enter IDC version>
       data:
-        - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1 first input>
+      - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1 first input>
         aws_url: <enter URL to your test case 1 first input>
         path: <the relative path where the instance is loaded into, e.g. `case1/ct`>
-        - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1 second input>
+      - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1 second input>
         aws_url: <enter URL to your test case 1 second input>
         path: <the relative path where the instance is loaded into, e.g. `case1/mr`>
 
-        - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 2 first input>
+      - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 2 first input>
         aws_url: <enter URL to your test case 2 first input>
         path: <the relative path where the instance is loaded into, e.g. `case2/ct`>
 
     reference:
       url: <url to zip file containing model output>
+    ```
+    ````
+
+    The following example requests a test run for a model providing a single dicom checst CT from IDC as intput:
+
+    ````markdown
+    /test
+
+    ```yaml
+    sample:
+      idc_version: "Data Release 17.0 December 04, 2023"
+      data:
+      - SeriesInstanceUID: 1.2.840.113654.2.55.257926562693607663865369179341285235858
+        aws_url: s3://idc-open-data/7271ab1d-bb03-4ca9-9457-dabcafd4d33f/*
+        path: dicom
+
+    reference:
+      url: https://www.dropbox.com/scl/fi/vsgt82id8m712e5wbsby6/output.zip?rlkey=jy7vz011uboyauo0q9e3ds0b0&dl=0
     ```
     ````
