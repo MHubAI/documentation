@@ -10,7 +10,7 @@ MHub models are bundled in a specific format. In addition, we require some speci
 
 ### Running MHub Models
 
-All MHub models are shipped as Docker images. This article explains, how you can run our MHub containers.
+All MHub models are shipped as Docker images. This article explains how you can run our MHub containers.
 
 [documentation/mhub/run_mhub.md](documentation/mhub/run_mhub.md)
 
@@ -23,7 +23,7 @@ Versioning plays an important role in our efforts to provide reproducible AI mod
 
 ### The MHub Model Folder Format
 
-Each MHub model is organized in a specific folder structure within our  [Models Repository](https://github.com/MHubAI/models/). This document describes the structure of the folder and how to set it up.
+Each MHub model is organized in a specific folder structure within our [Models Repository](https://github.com/MHubAI/models/). This document describes the structure of the folder and how to set it up.
 
 [documentation/mhub_models/model_folder_structure.md](documentation/mhub_models/model_folder_structure.md)
 
@@ -33,7 +33,7 @@ If you plan to submit a model to MHub, we will gladly accept your submission. To
 
 [documentation/mhub_contribution/contributing_a_model.md](documentation/mhub_contribution/contributing_a_model.md)
 
-### Mhub Model Meta Data
+### Mhub Model Metadata
 
 MHub models are not only about the implementation of the AI pipeline, which contains the environment setup and source code of the model, but also metadata describing the intended use of the model, inputs and outputs, training and evaluation data, and metrics. All of this information can be found on our [website](https://mhub.ai) on the model page. All of this meta information is contained in a single `meta.json` file.
 The following document describes the structure of the file.
