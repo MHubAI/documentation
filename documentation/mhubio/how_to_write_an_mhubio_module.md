@@ -353,7 +353,7 @@ class MyModule(Module):
 
          # append the generated instance data to the output collection to ensure 
          #  post-checks and data confirmation can be run.
-         out1.add(data)
+         out_datas.add(data)
 ```
 
 Dynamic [logical output](#handling-logical-output-data) works similarly and can be required in scenarios where a dynamic number of values are generated based on a static number of input data or input files.
