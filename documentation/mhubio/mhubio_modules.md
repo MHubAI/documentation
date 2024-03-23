@@ -262,6 +262,26 @@ TiffConverter:
   overwrite_existing_file: false
 ```
 
+### PngConverter
+
+The PNG converter can be used to convert dicom data into an image format. This is useful for models strting from a image input. The `PngConverter` converter module takes a two dimensional dicom input and converts it into an image in png format. 
+
+```yml
+PngConverter:
+  in_datas: dicom:mod=cr|dx
+  engine: itk
+  allow_multi_input: flase
+  bundle_name: png
+  converted_dile_name: '[filename].png'
+  overwrite_existing_file: false
+```
+
+The converter behaves similar to the other converters whith the above default settings. The size of the image is automatically determined depending on the size and resolution of the input image. If required, a fixed width can optionally be specified in the configuration with the `new_width` parameter. If set, the height is automatically adjusted to preserve the screen dimensions. 
+
+**Note, that the png converter accepts 2D images only as input. For dicom images that means ther must not be more than a single dicom slice available.**
+
+**Note, that the png converter is yet in a beta state and will likely be improved and changes with upcoming versions of mhubio. For now, the png converter can be used to convert dicom images only but will be updated for nrrd, nifti and mha formats soon.**
+
 ### DsegConverter
 
 `from mhubio.modules.converter.DsegConverter import DsegConverter`
