@@ -78,6 +78,7 @@ modules:
     source_dir: input_data
     import_dir: sorted_data
     sort_data: true
+    match: true
     meta: 
       mod: '%Modality'
 ```
@@ -88,6 +89,8 @@ Assuming you already have your Dicom data in a structured format, so there is no
 In either case, running Dicomsort isn't a problem, as the tool will recursively go through the entire input structure, identify all the Dicom files, and then sort them into the specified folder. However, if you can ensure that your data is already structured, it makes sense to omit the sorting step for performance reasons, especially if the number of Dicom files is large. To omit the sorting step, set the `sort_data: false` flag in the config to false.
 
 With the `meta` property you can specify the metadata that will be set to every imported dicom data. To see a list of the meta convention look (\tbd).
+
+The DicomImporter automatically matches related DICOMSEG and RTSTRUCT dicom files with their images and imports these into a single instance. To prevent this automatic matching and to import every dicom instance into a separate mhub instance, set `match: false`. This can slightly increase the performance if e.g., segmentation data is present in your input folder but not relevant to the workflow you are running.
 
 ### NrrdImporter
 
@@ -276,7 +279,7 @@ PngConverter:
   overwrite_existing_file: false
 ```
 
-The converter behaves similar to the other converters whith the above default settings. The size of the image is automatically determined depending on the size and resolution of the input image. If required, a fixed width can optionally be specified in the configuration with the `new_width` parameter. If set, the height is automatically adjusted to preserve the screen dimensions. 
+The converter behaves similar to the other converters whith the above default settings. The size of the image is automatically determined depending on the size and resolution of the input image. If required, a fixed width can optionally be specified in the configuration with the `new_width` parameter. If set, the height is automatically adjusted to preserve the screen dimensions.
 
 **Note, that the png converter accepts 2D images only as input. For dicom images that means ther must not be more than a single dicom slice available.**
 
@@ -321,12 +324,14 @@ The RTStructConverter converts segmentations from NIFTI, NRRD or MHA into RTStru
 
 ```yaml
 RTStructConverter:
+  model_name: Example Model
   target_dicom: dicom:mod=ct
   source_segs: nifti|nrrd|mha:mod=seg:roi=*
   skip_empty_slices: True
   converted_file_name: seg.dcm
   bundle_name: null
   segment_id_meta_key: roi
+  body_part_examined: WHOLEBODY
   use_pin_hole: False
   approximate_contours: True
 ```
@@ -337,9 +342,36 @@ Similar to the DSegConverter, the `target_dicom` specifies the source DICOM whic
 
 `mhubio.modules.processor`
 
-Processing modules are modules that modify data without changing the data type.
+Processing modules are modules that modify data without changing the data type or extract data and information from data.
 
-To this point we do not oficially support any processing modules but we have a Resampling module in the works.
+
+### DsegExtractor
+
+`mhubio.modules.processor.DsegExtractor`
+
+The DsegExtractor module can be used to extract segmentations from a DICOMSEG file. Each segmentation will be exported as a separate NIFTI file by the module. The segmentations are automatically z-aligned to the target DICOM image which can be specified with the `target_dicom` parameter. The `in_datas` parameter then specifies the query for the DICOMSEG file or files to be processed. Note, that although multiple segmentation files can be processed, they all must share the same target image. If you use `DicomImporter` with the `merge: true` option, this will be automatically resolved. The `roi` parameter is an optional value that can be used to specify the segmentations as a list of SegDB IDs. THe DsegExtractor will automatically extract the correct SegDB ID from the metadata if the DICOMSEG file was generated with MHub (i.e., by the DsegConverter) or if the metadata matches with a SegDB structure via it's code definition. If not, the roi metadata field on each generated NIFTI file will be set to the segment description. You can instead manually specify the SegDB ID with the `roi` parameter.
+
+```yaml
+DsegExtractor:
+  target_dicom: dicom:mod=ct|mr
+  in_datas: dicomseg:mod=seg
+  bundle: 'nifti'
+  roi: []
+```
+
+### RTStructExtractor
+
+`mhubio.modules.processor.RTStructExtractor`
+
+The `RTStructExtractor` works analogously to the `DsegExtractor` but for RTStruct files. The module extracts the segmentations from the RTStruct file and exports them as NIFTI files. The `target_dicom` parameter specifies the target DICOM image to which the segmentations will be aligned. The `in_datas` parameter specifies the query for the RTStruct file or files to be processed. The `roi` parameter is an optional value that can be used to specify the segmentations as a list of SegDB IDs. The RTStructExtractor will automatically extract the correct SegDB ID from the metadata if the RTStruct file was generated with MHub (i.e., by the RTStructConverter) or if the metadata matches with a SegDB structure via it's segment name. If not, the roi metadata field on each generated NIFTI file will be set to the segment name. You can instead manually specify the SegDB ID with the `roi` parameter.
+
+```yaml
+RTStructExtractor:
+  target_dicom: dicom:mod=ct|mr
+  in_datas: rtstruct:mod=RTSTRUCT
+  bundle: 'nifti'
+  roi: []
+```
 
 ## Run AI Pipelines
 
