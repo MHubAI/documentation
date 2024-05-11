@@ -207,7 +207,7 @@ This module converts data into the nifti format from various formats (e.g. dicom
 
 ```yaml
 NiftiConverter:
-  in_datas: dicom|nrrd|mha:mod=ct
+  in_datas: dicom|nrrd|mha:mod=ct|mr
   engine: plastimatch
   bundle_name: nifti
   converted_file_name: '[filename].nii.gz'
@@ -215,11 +215,11 @@ NiftiConverter:
   overwrite_existing_file: false
 ```
 
-You can specify the source files (NOTE: Currently the attribute is called `targets`, which is misleading since it's also the source files for the conversion. We'll try to change this in the future.) by using the `targets` attribute and specifying a list of data types to be converted. The default is `['dicom:mod=ct', 'nrrd:mod=ct']`, which means that all dicom or nrrd data with modality ct will be converted.
+You can specify the source files by using the `in_datas` attribute and specifying a [semantic data type query (DTQ)](./semantic_data_queries.md) to fetch the data to be converted. The default is `dicom|nrrd|mha:mod=ct|mr`, which means that all dicom, nrrd, or mha data with modality ct or mr will be converted.
 
 You can also specify the `engine` that will be used to convert the files. You can choose between plastimatch and dcm2niix. This only affects Dicom files, as we always use plastimatch as the conversion engine for NNRD files.
 
-If you want to convert multiple files, set the flag `allow_multi_input`. Otherwise we'll give a warning if more than one file matches the data types specified under `targets` and convert only the first file.
+If you want to convert multiple files, set the flag `allow_multi_input`. Otherwise we'll give a warning if more than one file matches the DTQ specified under `in_datas` and convert only the first file.
 
 If we find that a file already exists, we don't overwrite that file, but stop the conversion process for that file. We don't import the file into the internal file structure because we cannot verify its origin. If you want to overwrite existing files, set the flag `override_existing`.
 
@@ -267,7 +267,7 @@ TiffConverter:
 
 ### PngConverter
 
-The PNG converter can be used to convert dicom data into an image format. This is useful for models strting from a image input. The `PngConverter` converter module takes a two dimensional dicom input and converts it into an image in png format. 
+The PNG converter can be used to convert dicom data into an image format. This is useful for models strting from a image input. The `PngConverter` converter module takes a two dimensional dicom input and converts it into an image in png format.
 
 ```yml
 PngConverter:
