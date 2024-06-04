@@ -54,7 +54,7 @@ Finally, we need to specify the Docker image (`repo/image:tag`), where the repos
 
 ## MHub CLI
 
-When you run an MHub workflow, you can specify various CLI commands. CLI arguments are passed *after* the image name in the docker run command. You can fins a full list of commands by passing the `--help` argument, e.g. `docker run --rm --entrypoint mhub.run mhubai/base:latest --help`.
+When you run an MHub workflow, you can specify various CLI commands. CLI arguments are passed *after* the image name in the docker run command. You can find a full list of commands by passing the `--help` argument, e.g. `docker run --rm --entrypoint mhub.run mhubai/base:latest --help`.
 
 ### Specify the Workflow
 
