@@ -27,7 +27,13 @@ Each MHub model is organized in a specific folder structure within our  [Models 
 
 [documentation/mhub_models/model_folder_structure.md](documentation/mhub_models/model_folder_structure.md)
 
-### MHub Model Metadata
+### Submitting a Model to MHub
+
+If you plan to submit a model to MHub, we will gladly accept your submission. To ensure the high standard we apply to all models in MHub, we need to fulfill some requirements before we can accept your submission. This document describes the submission process and requirements for models submitted to MHub. Please read this document carefully to ensure a smooth and quick submission process and to minimize the effort on your and our side.
+
+[documentation/mhub_contribution/contributing_a_model.md](documentation/mhub_contribution/contributing_a_model.md)
+
+### Mhub Model Metadata
 
 MHub models are not only about the implementation of the AI pipeline, which contains the environment setup and source code of the model, but also metadata describing the intended use of the model, inputs and outputs, training and evaluation data, and metrics. All of this information can be found on our [website](https://mhub.ai) on the model page. All of this meta information is contained in a single `meta.json` file.
 The following document describes the structure of the file.

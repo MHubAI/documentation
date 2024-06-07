@@ -116,7 +116,7 @@ the='processed ct scan')
 
 In our previous example, we showed how to define an input using the `@IO.Input` decorator. This develops a static query of the input data that a module asks for, nifti data that has the modality CT in the above example. However, it may be that your module accepts nrrd files or works with both CT and MR data because you handle both modalities internally. If that is the case, you may want to allow some control over your model's input to the configuration file. Even if you only accept a specific file type and modality, the files may contain additional custom metadata that users may want to filter on. Therefore, it is a good practice to expose the query via the configuration file, but define a reasonable default value. You can (and should) always check the actual file type or metadata within your module implementation for the data that your task implementation supports anyway. Note that we only mention inputs. This is because while your module can work with different input data, it will always produce consistent output data. If you have different configurations in which your model can generate data, we recommend you implement them in separate modules.
 
-We provide a special decorator for this use case. The `@ IO.ConfigInput` decorator takes four arguments. First, you specify the `name` of the input. The same name is used to override the semantic data query from the configuration file. As a second argument you specify a `default` semantic query, which should cover the most common use cases. In our example, we used a default value that covers all of the above options, namely nifti and nrrd files, and ct and mr modality simultaneously. The third argument `class_attribute`, which defaults to `false`, can be set to `true` if you want to expose the configurable parameter as a class attribute to allow programmatic setting of the parameter, for example in custom run.py scripts, but you probably won't need this option and we don't recommend it unless you have a good reason. The fourth argument is `the` description of the configurable parameter. If you want to use the configurable input data in your `IO.Input` decorator, just specify the same name and they will be linked automatically. You must remove the dtype argument here, as it is automatically derived from the default value or the value specified in the configuration file.
+We provide a special decorator for this use case. The `@ IO.ConfigInput` decorator takes four arguments. First, you specify the `name` of the input. The same name is used to override the [semantic data query](./semantic_data_queries.md) from the configuration file. As a second argument you specify a `default` semantic query, which should cover the most common use cases. In our example, we used a default value that covers all of the above options, namely nifti and nrrd files, and ct and mr modality simultaneously. The third argument `class_attribute`, which defaults to `false`, can be set to `true` if you want to expose the configurable parameter as a class attribute to allow programmatic setting of the parameter, for example in custom run.py scripts, but you probably won't need this option and we don't recommend it unless you have a good reason. The fourth argument is `the` description of the configurable parameter. If you want to use the configurable input data in your `IO.Input` decorator, just specify the same name and they will be linked automatically. You must remove the dtype argument here, as it is automatically derived from the default value or the value specified in the configuration file.
 
 ```python
 @IO.Config('fast', bool, True, the='option to enable fast mode')
@@ -208,8 +208,6 @@ class RiskCategory(ClassOutput):
 Now, we need to define the classes that the model can predict. For each class we can specify a `@ClassOutput.Class(classID: str | int, label: str, the: str)`. The decorator `@ClassOutput.Class` is the only decorator that can be used multiple times. You use one per output class you want to define. You can then later reference each class by its `ClassID`. The classID can be specified either numerically or as a string. Whenn choosing a string-based ClassID, the string should be as short as possible and contain only alphanumerical characters, understcores and dashes. Specify a human readable class name in `label: str` and as usual a human readable description of the class in the `the: str` argument.
 
 ```python
-
-```python
 @ClassOutput.Name('rc')
 @ClassOutput.Label('RiskCategory')
 @ClassOutput.Description('Prediction of the risk category.')
@@ -266,7 +264,7 @@ In some cases we want to create a module that takes more than one input file or 
 
 However, sometimes this is not enough and we want to specify dynamic length inputs or outputs. MHub-IO is able to handle these cases as well. Note that this is an advanced use case. Therefore, carefully consider whether what you want to achieve cannot be accomplished by using multiple individual input or output decorators to optimize the readability of your module implementation.
 
-### Dynamic Input [1:n]
+### Dynamic Input [n:1]
 
 Let's look at some examples where dynamic input is actually required. Take, for example, a module that takes in all dicom CT files and outputs the number of these files. While this has little practical significance, there are many scenarios where such an `n:1` operation is required, e.g. reporting the maximum HU values for multiple files.
 
@@ -355,7 +353,7 @@ class MyModule(Module):
 
          # append the generated instance data to the output collection to ensure 
          #  post-checks and data confirmation can be run.
-         out1.add(data)
+         out_datas.add(data)
 ```
 
 Dynamic [logical output](#handling-logical-output-data) works similarly and can be required in scenarios where a dynamic number of values are generated based on a static number of input data or input files.
@@ -416,8 +414,6 @@ For logging messages, the `Module` class provides a `log(*args, level: str = 'NO
 
 ```python
 class MyModule(Module):
-   fast: bool
-
    def task(self):
 
       # print statements are logged as CAPTURED. 
@@ -438,8 +434,6 @@ If you want to start a subprocess from your module, you must use the `self.subpr
 
 ```python
 class MyModule(Module):
-   fast: bool
-
    def task(self):
 
       # build command

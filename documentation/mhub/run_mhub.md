@@ -114,7 +114,9 @@ docker  run -it --rm --network=none \
         -v /your/local/data/dicom:/app/data/input_data:ro \
         -v /your/local/data/output:/app/data/output \
         -v /your/local/data/config/custom.yml:/app/models/totalsegmentator/config/custom.yml \
-        --entrypoint bash \
+        --entrypoint mhub.run \
         mhubai/totalsegmentator:latest
         --workflow custom
 ```
+
+In case you store the config file in any other location inside the container, you can replace `--workflow` with `--config path/to/config/file.yml`.

@@ -9,7 +9,7 @@ So far, we have six different types of modules for importing, filtering, convert
 
 `mhubio.modules.importer`
 
-Every MHub-IO workflow starts with an importer module. Importer modules are responsible for reading input data provided to the MHub container. The importer module creates an internal semantic file structure that can then be used by subsequent modules to retrieve data through semantic queries.
+Every MHub-IO workflow starts with an importer module. Importer modules are responsible for reading input data provided to the MHub container. The importer module creates an internal semantic file structure that can then be used by subsequent modules to retrieve data through [semantic data type queries (DTQ)](./semantic_data_queries.md).
 
 A term that will come up again and again in this and other documents is 'instance'. In MHub-IO, we call an instance a single case to be processed. For example, if we want to delineate heart masks based on a single CT image and give MHub-IO two such CT images, it'll treat each CT image as an instance.
 
@@ -78,6 +78,7 @@ modules:
     source_dir: input_data
     import_dir: sorted_data
     sort_data: true
+    match: true
     meta: 
       mod: '%Modality'
 ```
@@ -88,6 +89,8 @@ Assuming you already have your Dicom data in a structured format, so there is no
 In either case, running Dicomsort isn't a problem, as the tool will recursively go through the entire input structure, identify all the Dicom files, and then sort them into the specified folder. However, if you can ensure that your data is already structured, it makes sense to omit the sorting step for performance reasons, especially if the number of Dicom files is large. To omit the sorting step, set the `sort_data: false` flag in the config to false.
 
 With the `meta` property you can specify the metadata that will be set to every imported dicom data. To see a list of the meta convention look (\tbd).
+
+The DicomImporter automatically matches related DICOMSEG and RTSTRUCT dicom files with their images and imports these into a single instance. To prevent this automatic matching and to import every dicom instance into a separate mhub instance, set `match: false`. This can slightly increase the performance if e.g., segmentation data is present in your input folder but not relevant to the workflow you are running.
 
 ### NrrdImporter
 
@@ -204,7 +207,7 @@ This module converts data into the nifti format from various formats (e.g. dicom
 
 ```yaml
 NiftiConverter:
-  in_datas: dicom|nrrd|mha:mod=ct
+  in_datas: dicom|nrrd|mha:mod=ct|mr
   engine: plastimatch
   bundle_name: nifti
   converted_file_name: '[filename].nii.gz'
@@ -212,11 +215,11 @@ NiftiConverter:
   overwrite_existing_file: false
 ```
 
-You can specify the source files (NOTE: Currently the attribute is called `targets`, which is misleading since it's also the source files for the conversion. We'll try to change this in the future.) by using the `targets` attribute and specifying a list of data types to be converted. The default is `['dicom:mod=ct', 'nrrd:mod=ct']`, which means that all dicom or nrrd data with modality ct will be converted.
+You can specify the source files by using the `in_datas` attribute and specifying a [semantic data type query (DTQ)](./semantic_data_queries.md) to fetch the data to be converted. The default is `dicom|nrrd|mha:mod=ct|mr`, which means that all dicom, nrrd, or mha data with modality ct or mr will be converted.
 
 You can also specify the `engine` that will be used to convert the files. You can choose between plastimatch and dcm2niix. This only affects Dicom files, as we always use plastimatch as the conversion engine for NNRD files.
 
-If you want to convert multiple files, set the flag `allow_multi_input`. Otherwise we'll give a warning if more than one file matches the data types specified under `targets` and convert only the first file.
+If you want to convert multiple files, set the flag `allow_multi_input`. Otherwise we'll give a warning if more than one file matches the DTQ specified under `in_datas` and convert only the first file.
 
 If we find that a file already exists, we don't overwrite that file, but stop the conversion process for that file. We don't import the file into the internal file structure because we cannot verify its origin. If you want to overwrite existing files, set the flag `override_existing`.
 
@@ -232,7 +235,7 @@ If you convert only a single file (e.g. a Dicom image to Nifti), you can set `co
 
 The *MhaConverter* module is a simple module to convert images in dicom, nrrd or nifti format into the mha format. The module behaves similar to the *NiftiConverter* described earlier.
 
-We support two different conversion backends, Plastimatch and the [Panimg](https://pypi.org/project/panimg/) conversion library. YOu can specify which bakend to use via the `engine: plastimatch|panimg` attribute. The default is `plastimatch`.
+We support two different conversion backends, Plastimatch and the [Panimg](https://pypi.org/project/panimg/) conversion library. You can specify which bakend to use via the `engine: plastimatch|panimg` attribute. The default is `plastimatch`.
 
 ```yaml
 MhaConverter:
@@ -262,13 +265,33 @@ TiffConverter:
   overwrite_existing_file: false
 ```
 
+### PngConverter
+
+The PNG converter can be used to convert dicom data into an image format. This is useful for models strting from a image input. The `PngConverter` converter module takes a two dimensional dicom input and converts it into an image in png format.
+
+```yml
+PngConverter:
+  in_datas: dicom:mod=cr|dx
+  engine: itk
+  allow_multi_input: flase
+  bundle_name: png
+  converted_dile_name: '[filename].png'
+  overwrite_existing_file: false
+```
+
+The converter behaves similar to the other converters whith the above default settings. The size of the image is automatically determined depending on the size and resolution of the input image. If required, a fixed width can optionally be specified in the configuration with the `new_width` parameter. If set, the height is automatically adjusted to preserve the screen dimensions.
+
+**Note, that the png converter accepts 2D images only as input. For dicom images that means ther must not be more than a single dicom slice available.**
+
+**Note, that the png converter is yet in a beta state and will likely be improved and changes with upcoming versions of mhubio. For now, the png converter can be used to convert dicom images only but will be updated for nrrd, nifti and mha formats soon.**
+
 ### DsegConverter
 
 `from mhubio.modules.converter.DsegConverter import DsegConverter`
 
 The dicomseg converter module converts segmentations from nifti or nrrd files to a dicomseg (ref) file, which is a standard for bundling segmentations into a single file with standardized metadata such as colors and naming conventions.
 
-To generate the dicomseg, we use the *itkimage2segimage* engine. You need a special configuration file that defines metadata for each input file and each segment within an input file. You can create such a configuration file in json format using their [web editor](http://qiicr.org/dcmqi/#/seg). In the dicomseg converter module you can specify the path to the configuration file with the attribute `json_config_path`. Note that we sort all the files we retrieve from the data types in `source_segs` in alphabetical order, so your json configuration file must look like this. In addition to the segmentation files, a Dicom series is needed to create an aligned Dicomseg file. Therefore, you must specify a data type pattern in the `target_dicom` field to select this dicom file. The default value is `dicom:mod=ct`, so all Dicom data with the modality ct will be selected. Note that you specify a single value here instead of a list, because there can only ever be a single Dicom file and the query you make should be unique.
+To generate the dicomseg, we use the *itkimage2segimage* engine. You need a special configuration file that defines metadata for each input file and each segment within an input file. You can create such a configuration file in json format using their [web editor](http://qiicr.org/dcmqi/#/seg). In the dicomseg converter module you can specify the path to the configuration file with the attribute `json_config_path`. Note that we sort all the files we retrieve from the data types in `source_segs` in alphabetical order, so your json configuration file must look like this. In addition to the segmentation files, a Dicom series is needed to create an aligned Dicomseg file. Therefore, you must specify a data type pattern in the `target_dicom` field to select this dicom file. The default value is `dicom:mod=ct`, so all Dicom data with the modality ct will be selected. Note that you specify a single value here instead of a list, because there can only ever be a single Dicom file and the [DTQ](./semantic_data_queries.md) should uniquely identify that data.
 
 ```yaml
 DsegConverter:
@@ -297,27 +320,58 @@ We strongly recommend that you choose the latter method. You set the metadata of
 
 `from mhubio.modules.converter.RTStructConverter import RTStructConverter`
 
-The RTStructConverter converts DICOMSEG into RTStruct. This is useful if you want to use the segmentation e.g. in a treatment planning system (TPS) that does not support DICOMSEG.
-
-***NOTE**: We currently only support conversion from niffti, nrrd or mha to RT -Struct via DICOMSEG. Since the data representation in e.g. NIFTI files may differ depending on the source, conversion via a standardized format (such as DICOMSEG) ensures that workflows (e.g. dicom-dicomseg and dicom-rtstruct) provide similar results. Since this requires a significant amount of time, we plan to support direct conversion of NIFTI / NRRD / MHA files in the future.*
+The RTStructConverter converts segmentations from NIFTI, NRRD or MHA into RTStruct. This is useful if you want to use the segmentation e.g. in a treatment planning system (TPS) that does not support DICOMSEG.
 
 ```yaml
-DsegConverter:
+RTStructConverter:
+  model_name: Example Model
   target_dicom: dicom:mod=ct
-  source_seg: dicomseg:mod=seg
+  source_segs: nifti|nrrd|mha:mod=seg:roi=*
+  skip_empty_slices: True
+  converted_file_name: seg.dcm
+  bundle_name: null
+  segment_id_meta_key: roi
+  body_part_examined: WHOLEBODY
   use_pin_hole: False
   approximate_contours: True
 ```
 
-Similar to the DSegConverter, the `target_dicom` specifies the source DICOM which the RT-Struct will be mapped to. The `source_seg` specifies the source DICOMSEG which will be converted to RT-Struct. The `use_pin_hole` flag specifies whether the RT-Struct should be created using a pin hole algorithm. If set to true, lines will be erased through your mask such that each separate region within your image can be encapsulated via a single contour instead of contours nested within one another. Use this if your RT Struct viewer of choice does not support nested contours / contours with holes. The `approximate_contours` flag specifies defines whether or not approximations are made when extracting contours from the input mask. Setting this to false will lead to much larger contour data within your RT Struct so only use this if as much precision as possible is required.
+Similar to the DSegConverter, the `target_dicom` specifies the source DICOM which the RT-Struct will be mapped to. The `source_segs` specifies the source segmentation file or files which will be converted to RT-Struct. When `skip_empty_slices` is enabled, empty segmentations will be ignored. The `converted_file_name` is used to set the file name used internally and the `bundle_name` specifies weather to create a bundle internally (you certainly don't need to touch these parameters; to change the file name of the RT structure exported from MHub, use the DataOrganizer module instead). The `segment_id_meta_key` works exactly as explained under the [DSegConverter](./mhubio_modules.md#dsegconverter) module above. The `use_pin_hole` flag specifies whether the RT-Struct should be created using a pin hole algorithm. If set to true, lines will be erased through your mask such that each separate region within your image can be encapsulated via a single contour instead of contours nested within one another. Use this if your RT Struct viewer of choice does not support nested contours / contours with holes. The `approximate_contours` flag specifies defines whether or not approximations are made when extracting contours from the input mask. Setting this to false will lead to much larger contour data within your RT Struct so only use this if as much precision as possible is required.
 
 ## Process Data
 
 `mhubio.modules.processor`
 
-Processing modules are modules that modify data without changing the data type.
+Processing modules are modules that modify data without changing the data type or extract data and information from data.
 
-To this point we do not oficially support any processing modules but we have a Resampling module in the works.
+
+### DsegExtractor
+
+`mhubio.modules.processor.DsegExtractor`
+
+The DsegExtractor module can be used to extract segmentations from a DICOMSEG file. Each segmentation will be exported as a separate NIFTI file by the module. The segmentations are automatically z-aligned to the target DICOM image which can be specified with the `target_dicom` parameter. The `in_datas` parameter then specifies the [semantic data type query (DTQ)](./semantic_data_queries.md) for the DICOMSEG file or files to be processed. Note, that although multiple segmentation files can be processed, they all must share the same target image. If you use `DicomImporter` with the `merge: true` option, this will be automatically resolved. The `roi` parameter is an optional value that can be used to specify the segmentations as a list of SegDB IDs. THe DsegExtractor will automatically extract the correct SegDB ID from the metadata if the DICOMSEG file was generated with MHub (i.e., by the DsegConverter) or if the metadata matches with a SegDB structure via it's code definition. If not, the roi metadata field on each generated NIFTI file will be set to the segment description. You can instead manually specify the SegDB ID with the `roi` parameter.
+
+```yaml
+DsegExtractor:
+  target_dicom: dicom:mod=ct|mr
+  in_datas: dicomseg:mod=seg
+  bundle: 'nifti'
+  roi: []
+```
+
+### RTStructExtractor
+
+`mhubio.modules.processor.RTStructExtractor`
+
+The `RTStructExtractor` works analogously to the `DsegExtractor` but for RTStruct files. The module extracts the segmentations from the RTStruct file and exports them as NIFTI files. The `target_dicom` parameter specifies the target DICOM image to which the segmentations will be aligned. The `in_datas` parameter specifies the [semantic data type query (DTQ)](./semantic_data_queries.md) for the RTStruct file or files to be processed. The `roi` parameter is an optional value that can be used to specify the segmentations as a list of SegDB IDs. The RTStructExtractor will automatically extract the correct SegDB ID from the metadata if the RTStruct file was generated with MHub (i.e., by the RTStructConverter) or if the metadata matches with a SegDB structure via it's segment name. If not, the roi metadata field on each generated NIFTI file will be set to the segment name. You can instead manually specify the SegDB ID with the `roi` parameter.
+
+```yaml
+RTStructExtractor:
+  target_dicom: dicom:mod=ct|mr
+  in_datas: rtstruct:mod=RTSTRUCT
+  bundle: 'nifti'
+  roi: []
+```
 
 ## Run AI Pipelines
 
@@ -437,7 +491,7 @@ Or with `format` set to `compact`:
 
 #### Files
 
-You can also add information about files contained in an instance, such as imported, converted, or generated files. To add a file directive, start with the keyword `files`. This will include all files that are available in the instance in the directive. You can also specify a DTQ (Data-Type-Query) to include only files that match the DTQ as the value for the `files` keyword.
+You can also add information about files contained in an instance, such as imported, converted, or generated files. To add a file directive, start with the keyword `files`. This will include all files that are available in the instance in the directive. You can also specify a [DTQ](./semantic_data_queries.md) to include only files that match the DTQ as the value for the `files` keyword.
 
 You need to specify with the `aggregate` attribute how the value will be derived from the filtered files. If you select `count`, the reported value is the number of all filtered files. If you select `list`, the value will be a list of all files. In the `pattern` attribute you can specify how the individual files should be displayed (all placeholders described in *DataOrganizer* are available). You can also convert the list to a string by specifying the `delimiter` attribute. The files will then be joined into a single string by the delimiter.
 
@@ -464,7 +518,7 @@ The most important include directive is the data directive, which allows all der
 
 There are two different types of outputs: Value outputs and Class outputs. Value outputs have a single value, such as a model's prediction. Class outputs have multiple classes, each with a prediction score. The value of a class output is the selected class (the selection of the class depends on the pipeline, but is usually the class with the highest prediction score).
 
-Use the `data` directive for a data directive and specify the name (or a query string) as the value. A query string is similarily to query string used for file queries, but instead of a data type (e.g., dicom or nrrd) you specify the name of the data field. Specify the value you want to display under the `value` keyword. For value and class outputs you can specify `value: description`, `value: label` or `value: value` to report the description, label or value of the output data. For value outputs you can additionally specify `value: type` to report the data type (e.g. string, integer, float) of the output. For class outputs you can specify insead the attribute `class: $classname` and use the class name to report insead the description, label, or value of that class.
+Use the `data` directive for a data directive and specify the name (or a query string) as the value. A query string is similarily to query string used for file queries, but instead of a data type (e.g., dicom or nrrd) you specify the name of the data field. You can read more about semantic data queries [here](./semantic_data_queries.md). Specify the value you want to display under the `value` keyword. For value and class outputs you can specify `value: description`, `value: label` or `value: value` to report the description, label or value of the output data. For value outputs you can additionally specify `value: type` to report the data type (e.g. string, integer, float) of the output. For class outputs you can specify insead the attribute `class: $classname` and use the class name to report insead the description, label, or value of that class.
 
 ```yaml
 ReportExporter:
@@ -544,6 +598,6 @@ In the above example, the targets resolve as follows:
 - get all nrrd segmentation files that have the modality `seg`. Then put them in a folder with the name of the sid attribute from the instance of the data under `/app/data/output_data/<sid>/seg`. To resolve the filename, check the metadata of the data for the `roi` attribute and use it as the filename with the `.nrrd` extension attached.
 - retrieve all dicom segmentation files. Then put them in a folder with the name of the sid attribute from the instance of the data under `/app/data/output_data/` as `casust.dcm`
 
-In the first and last examples, a single file is clearly expected to be found by the query, since a static filename is used. If multiple files matched the query `nifti:mod=ct`, only the last file would be returned, since it overrides the other files due to the same filename.
+In the first and last examples, a single file is clearly expected to be found by the [semantic data type query (DTQ)](./semantic_data_queries.md), since a static filename is used. If multiple files matched the DTQ `nifti:mod=ct`, only the last file would be returned, since it overrides the other files due to the same filename.
 
 Note that in the above example, multiple instances are supported and each instance is organized in its own folder with the instance ID name. You can omit the `/[i:sid]/` part of the path structure if you know you're only running a single instance at a time to simplify your output structure.

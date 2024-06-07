@@ -1,0 +1,30 @@
+general:
+  data_base_dir: /app/data
+  version: 1.0
+  description: Custom configuration for LungMask (nrrd in, nifti out)
+
+execute:
+- FileStructureImporter
+- NiftiConverter
+- LungMaskRunner
+- DataOrganizer
+
+
+modules:
+  FileStructureImporter:
+    import_id: caseId
+    structures:
+      - nrrd/re:([\w_-]+).nrrd::$caseId@instance@nrrd:mod=ct
+    excludes:
+      - nifti/
+      - dicom/
+
+  LungMaskRunner:
+    batchsize: 64
+
+  DataOrganizer:
+    targets:
+    - nifti:mod=seg-->[i:caseId]/seg/[d:roi].nii.gz
+    - nifti:mod=seg-->[i:caseId]/raw/[basename]
+    - log-->[i:caseId]/log/[basename]
+    - nifti:mod=ct-->[i:caseId]/image/[basename]
