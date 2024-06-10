@@ -368,7 +368,7 @@ The `RTStructExtractor` works analogously to the `DsegExtractor` but for RTStruc
 ```yaml
 RTStructExtractor:
   target_dicom: dicom:mod=ct|mr
-  in_datas: rtstruct:mod=RTSTRUCT
+  in_datas: rtstruct:mod=seg
   bundle: 'nifti'
   roi: []
 ```
