@@ -78,3 +78,32 @@ execute:
     mod: '%Modality'
     desc: '%SeriesDescription'
 ```
+
+### SegDB customization
+
+Segmentation models can use segment IDs from our [SegDB](https://github.com/mhubai/segdb) to conveniently retrieve standardized ROI definitions.
+The [DsegConverter](./mhubio_modules.md#dsegconverter) and the [RTStructConverter](./mhubio_modules.md#rtstructconverter) use the IDs specified in the `roi` metafield of the data (or any other metafield specified in `segment_id_meta_key` for the above modules, `roi` is the default) to retrieve the corresponding ROI definitions from the SegDB.
+
+For example, an nrrd segmentation file labeled 0, 1, 2, and 3, where zero is the background and 1, 2, and 3 are the heart, left lung, and right lung, respectively, could contain the following MHub metadata: `nrrd:roi=HEART,LEFT_LUNG,RIGHT_LUNG` where `HEART`, `LEFT_LUNG`, and `RIGHT_LUNG` are the IDs of the corresponding ROIs in the SegDB.
+
+You can overwrite the default SegDB entries and create your own SegDB entries if they are missing in the configuration file.
+
+```yml
+segdb:
+  triplets:
+    MY_CUSTOM_TRIPLET:
+      code: 123
+      meaning: custom code
+  segmentations:
+    MY_CUSTOM_SEGMENTATION:
+      name: custom segmentation
+      category: C_BODY_STRUCTURE
+      type: MY_CUSTOM_TRIPLET
+      color: [255, 255, 255]
+    LEFT_LUNG:
+      name: custom label and color for lung
+      category: C_BODY_STRUCTURE
+      type: T_LUNG
+      modifier: M_LEFT
+      color: [255, 0, 0]
+```
