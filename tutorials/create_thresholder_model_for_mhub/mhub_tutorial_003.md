@@ -487,9 +487,7 @@ Warning: the model definition is not from the official MHub Models repository an
 
 ## Test Model
 
-## Additional Workflows
-
-Now we can test our model with the standard workflow and the test workflow. We can also create additional workflows to test the model with other configurations or with other data. We can create a new configuration file for each workflow and specify the configuration file during the run with the `--config` argument.
+Now we can test our model with the standard workflow and the test workflow. We can also create additional workflows to test the model with other configurations or with other data. 
 
 ```bash
 # run command that automatically launches the default workflow
