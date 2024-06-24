@@ -190,6 +190,17 @@ AttributeFilter:
 
 Note that the keys and values of the metadata depend on how the data was imported. So you have to make sure that the metadata you want to filter for is present in the instance metadata under the correct key.
 
+## FileFilter
+
+The FileFilter module filters instances according to the availability of certain files. You can specify a list of [DTQ](./semantic_data_queries.md) to check for the presence of files. All instances that don't have at least one matching file for all DTQs listed under `required` will be discarded.
+
+```yaml
+FileFilter:
+  required:
+    - nifti:mod=ct
+    - nifti:mod=seg
+```
+
 ## Convert Data
 
 `mhubio.modules.converter`
