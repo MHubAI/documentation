@@ -562,6 +562,18 @@ If the `data: <query>` query fetches more than one matching data instance you mu
 
 Organizer modules are modules that don't change data or data types, but copy files and folders to a new, specified location and structure.
 
+### FileRemover
+
+This module removes all files that match a [DTQ](semantic_data_queries.md) in any instance.
+This can be useful to reduce disk space for files created in the meantime that are no longer needed.
+
+Specify the DTQ in the `query` attribute. If you want to remove all files except those that match the DTQ, you can invert the DTQ with the `NOT` statement, e.g. `NOT nifti:mod=seg`.
+
+```yaml
+FileRemover:
+  query: nifti:mod=seg
+```
+
 ### DataOrganizer
 
 `from mhubio.modules.organizer.DataOrganizer import DataOrganizer`
