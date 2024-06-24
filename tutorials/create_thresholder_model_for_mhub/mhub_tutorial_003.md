@@ -25,6 +25,9 @@ You can change the `TUTORIAL_DIR` to any absolute path on your system where we w
 # all work will be done in this base directory
 TUTORIAL_DIR=$(realpath ~/Desktop/mhub_tutorial_003)
 
+#
+MODELS_FORK_REPO="https://github.com/<user/org>/<repo>.git"
+
 # we will clone the MHubAI/models repository here
 MODELS_FORK_DIR="$TUTORIAL_DIR/mhub_models"
 
@@ -55,6 +58,12 @@ Then you can run the following command.
 gh repo fork mhubai/models --clone $MODELS_FORK_DIR
 ```
 
+Specify the repository url of your fork in the `MODELS_FORK_REPO` variable.
+
+```bash
+MODELS_FORK_REPO="https://github.com/<user/org>/<repo>.git"
+```
+
 ### Manually from the GitHub Website
 
 Navigate to the official [MHubAI/models](https://github.com/mhubai/models) repository on GitHub and click the "Fork" button in the top right corner. This will create a fork of the repository in your GitHub account. You can then clone the fork to your local machine.
@@ -64,7 +73,7 @@ Navigate to the official [MHubAI/models](https://github.com/mhubai/models) repos
 Once you created a fork, you can clone the fork repository to your local machine with the `git clone` commnad.
 
 ```bash
-git clone <github repository> $MODELS_FORK_DIR
+git clone $MODELS_FORK_REPO $MODELS_FORK_DIR
 ```
 
 ## Create Model Directory Structure
@@ -170,6 +179,7 @@ CMD ["--config", "/app/models/demo_th/config/default.yml"]
 ```
 
 Make sure that you replace the model name (here `demo_th`) with your model name in the following lines:
+
 - `RUN buildutils/import_mhub_model.sh demo_th ${MHUB_MODELS_REPO}`
 - `CMD ["--config", "/app/models/demo_th/config/default.yml"]`
 
@@ -214,7 +224,7 @@ ls /app/data/nifti
 
 If this all works as expected, we have successfully created the environment for our model and confirmed that we can run the model within the environment. However, you will notice that some manual steps are required, such as converting the file format, before we can run the model as our model only accepts nifti data. Also, we have a nifti output file and still need to manually convert it to a dicomseg file. In the next steps, we will wrap our model in an MHub runner and write an MHub workflow so that MHub takes care of importing dicom, converting to nifti, running the model, converting to dicomseg and saving the output.
 
-## The Custom Model Runner Module 
+## The Custom Model Runner Module
 
 We will now write our own MHub-IO module in which we will define the configurable parameters, the input data and the output data of our model. The MHub IO framework takes care of the file organization within the container and ensures that the correct files are made available to our module.
 
@@ -457,11 +467,11 @@ git push --set-upstream origin $MODEL_NAME:$MODEL_NAME
 ## Build Model
 
 Our MHub model implementation is now publicly available. We can test our model by building the Docker image and specifying our fork as the models repository.
-Once our fork is included in the official [MHubAI/models](https://github.com/mhubai/models) repository, this will happen automatically during the build. You can create a pull request from the model branch of your fork into the official MHubAI/models repository to submit your contribution for review. More information can be found in the [contribution procedure guide](../../documentation/mhub_contribution/contributing_a_model.md). Until then, we can either include local files in the container as described above or specify the argument `--build-arg MHUB_MODELS_REPO=::$MODEL_NAME` during the build.
+Once our fork is included in the official [MHubAI/models](https://github.com/mhubai/models) repository, this will happen automatically during the build. You can create a pull request from the model branch of your fork into the official MHubAI/models repository to submit your contribution for review. More information can be found in the [contribution procedure guide](../../documentation/mhub_contribution/contributing_a_model.md). Until then, we can either include local files in the container as described above or specify the argument `--build-arg MHUB_MODELS_REPO=<repo>::<branch>` during the build.
 
 ```bash
-# replace <fork-repo-url> with the https://github.com/... url of your fork
-docker build -t $DOCKER_IMAGE --build-arg MHUB_MODELS_REPO=<fork-repo-url>::$MODEL_NAME - < $MODEL_BASE_DIR/dockerfiles/Dockerfile
+# make sure MODELS_FORK_REPO is set to the https://github.com/<user/org>/<repo>.git url of your fork
+docker build -t $DOCKER_IMAGE --build-arg MHUB_MODELS_REPO=$MODELS_FORK_REPO::$MODEL_NAME $MODELS_FORK_REPO#$MODEL_NAME:models/$MODEL_NAME/dockerfiles
 ```
 
 You should see the following in the build log:
@@ -469,7 +479,7 @@ You should see the following in the build log:
 ```text
 Importing model definition from MHub models repository.
 ├── MODEL NAME ..... demo_th
-├── REPOSITORY ..... <fork-repo-url>
+├── REPOSITORY ..... https://github.com/<user/org>/<repo>.git
 └── BRANCH ......... demo_th
 
 Warning: the model definition is not from the official MHub Models repository and therefore only suitable for development.
