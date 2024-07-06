@@ -1,6 +1,6 @@
 # MHub Versioning
 
-This document describes how validation, versioning and marking of MHub models is performed to achieve a high level of reproducibility.
+This document describes how validation, versioning, and marking of MHub models is performed to achieve a high level of reproducibility.
 
 ## Versions in the MHub Ecoverse
 
@@ -20,7 +20,7 @@ We provide two different kinds of releases for Mhub models: latest and stable re
 
 `:latest`
 
-As explained in the Reproducibility Checks section above, we build all MHub models every week to ensure the model code stays up-to-date and the most recent Modules and features (and fixes) of MHub are available to you. As long as the built image passes all of our output checks, we push it to DockerHub under the `:latest` tag.
+As explained in the Reproducibility Checks section above, we build all MHub models every week to ensure the model code stays up-to-date and the most recent modules and features (and fixes) of MHub are available to you. As long as the built image passes all of our output checks, we push it to DockerHub under the `:latest` tag.
 
 ### Stable Releases
 
