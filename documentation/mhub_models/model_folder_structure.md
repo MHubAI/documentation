@@ -2,14 +2,14 @@
 
 All MHub models are organized in our [Models Repository](https://github.com/MHubAI/models/).
 There we provide our base image under `/base` and each model has its own folder under `/models`.
-The folder of the model is named after the [MHub name](model_json.md#name) of the model. Throughout this example, we consider a model named `my_model`.
+The folder of the model is named for the [MHub name](model_json.md#name) of the model. Throughout this example, we consider a model named `my_model`.
 
 This document explains how the model folders are structured on MHub and how you set them up.
 
 ## Model Folder Structure
 
 You'll create a folder under `/models/my_model` for your model.
-Inside your model's folder, create the following folders: `dockerfiles`, `config` and `utils` alongside a `README.md` and a `meta.json` file, each of which are explained in more detail below.
+Inside your model's folder, create the following folders: `dockerfiles`, `config`, `utils`, `README.md`, and `meta.json`, each of which are explained in more detail below.
 
 ```text
 /models/my_model
@@ -25,7 +25,7 @@ Inside your model's folder, create the following folders: `dockerfiles`, `config
 
 ## Dockerfiles
 
-Create a single `Dockerfile` in the `/models/my_model/dockerfiles` folder. The `Dockerfile` is used to bundle your model's code together with all dependencies and ressources into a Docker container. More details on how to write your MHub compliant `Dockerfile` can be found in the [MHub Dockerfile documentation](the_mhub_dockerfile.md).
+Create a single `Dockerfile` in the `/models/my_model/dockerfiles` folder. The `Dockerfile` is used to bundle your model's code together with all dependencies and resources into a Docker container. More details on how to write your MHub compliant `Dockerfile` can be found in the [MHub Dockerfile documentation](the_mhub_dockerfile.md).
 
 ## Config
 
