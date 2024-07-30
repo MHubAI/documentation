@@ -35,7 +35,7 @@ ARG MHUB_MODELS_REPO
 RUN buildutils/import_mhub_model.sh my_model ${MHUB_MODELS_REPO}
 ```
 
-As your model will of course not be available on our models repository unless your contribution is accepted, this won't build. The lines above therefore introduce a build argument `MHUB_MODELS_REPO` that you can use to specify your repository and branch at build time. As shown below, you can then specify `--build-arg` with the `docker build` command to set `MHUB_MODELS_REPO` to the url of your fork of our models repository and optionally specify the branch name separated with `::` from the url.
+As your model will of course not be available on our models repository unless your contribution is accepted, this won't build. The lines above therefore introduce a build argument `MHUB_MODELS_REPO` that you can use to specify your repository and branch at build time. As shown below, you can then specify `--build-arg` with the `docker build` command to set `MHUB_MODELS_REPO` to the URL of your fork of our models repository and optionally specify the branch name separated with `::` from the URL.
 
 ```bash
 docker build --build-arg MHUB_MODELS_REPO=https://github.com/your_username/models-fork::branch -t dev/my_model:latest .

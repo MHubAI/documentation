@@ -38,12 +38,12 @@ Let's break this down:
 
 - We start with the `docker run` command, because all MHub models are Docker containers.
 - Then we specify the `-t` flag to tell Docker to assign a pseudo-tty.
-- The `--rm` flag to tell Docker to not keep the container alive but to remove it after execution.
-- The `--network none` flag to start the container without an Internet connection for extra security.
+- We add the `--rm` flag to tell Docker to not keep the container alive but to remove it after execution.
+- We add the `--network none` flag to start the container without an Internet connection for extra security.
 
 Then we need to specify the input data and the output location. To do this, we map folders from our machine (usually referred to as the host machine) to the Docker container using the `-v` argument, first specifying the full absolute path on our local machine, followed by the absolute path inside the Docker container, separated by a colon. We specify the optional `:ro` flag for the input mount to mount the input data into Docker for reading only. It is always a good practice to give as few permissions as necessary.
 
-- The `-v /your/local/data/dicom:/app/data/input_data:ro` tells MHub that the input data can be found under `/your/local/data/dicom` and mounts this into the container read-only.
+- The `-v /your/local/data/dicom:/app/data/input_data:ro` tells MHub that the input data can be found under `/your/local/data/dicom` and mounts this into the container with read-only access.
 - The `-v /your/local/data/output:/app/data/output` gives the container write access to the folder `/your/local/data/output` and tells MHub to write all generated output here.
 
 Finally, we need to specify the Docker image (`repo/image:tag`), where the repository is always `mhubai`, the image is the [model name](../mhub_models/model_json.md#name), and the tag is either `:latest`, `:stable`, or a specific stable version such as `:v1-m1` (more about [MHub versioning](./versioning.md) here).
@@ -54,7 +54,7 @@ Finally, we need to specify the Docker image (`repo/image:tag`), where the repos
 
 ## MHub CLI
 
-When you run an MHub workflow, you can specify various CLI commands. CLI arguments are passed *after* the image name in the docker run command. You can fins a full list of commands by passing the `--help` argument, e.g. `docker run --rm --entrypoint mhub.run mhubai/base:latest --help`.
+When you run an MHub workflow, you can specify various CLI commands. CLI arguments are passed *after* the image name in the docker run command. You can find a full list of commands by passing the `--help` argument, e.g. `docker run --rm --entrypoint mhub.run mhubai/base:latest --help`.
 
 ### Specify the Workflow
 

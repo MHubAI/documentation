@@ -32,15 +32,15 @@ You can browse a huge collection of publicly available images on [IDC](https://p
 
 Now that you've found some suitable data to test your implementation on, you can run through the following steps to test your model.
 
-1. Prepare your submission
+1. Prepare your submission.
 
-    The testing procedure takes a bit of time on your and our side so please make sure to test and submit the right code.
+    The testing procedure takes a bit of time on your and our side, so please make sure to test and submit the right code.
 
     1.1. Ensure that your PR is up to date with our `main` branch.  
     1.2. Commit all changes to your local repository.  
     1.3. Push all changes to your remote fork.
 
-2. Get the latest MHub base image
+2. Get the latest MHub base image.
 
     Ideally, you're base image is up to date during development. However, to ensure you have the latest base image, refetch it from Docker Hub.
 
@@ -86,7 +86,7 @@ Now that you've found some suitable data to test your implementation on, you can
 
 6. Inspect the Console Output
 
-    MHub captures all `print()` statements in log files and displays a clean process overview on the console. Make sure that no uncaptured output is generated in your implementation (uncaptured output can generate repeated lines, omitted lines or additional text that should not occur). If your implementation does not generate clean output, your model cannot be accepted.
+    MHub captures all `print()` statements in log files and displays a clean process overview on the console. Make sure that no uncaptured output is generated in your implementation (uncaptured output can generate repeated lines, omitted lines, or additional text that should not occur). If your implementation does not generate clean output, your model cannot be accepted.
 
     **Note**: Some Python packages contain print statements in `__init__.py` files or at file level in otherwise imported files that are executed at import time. However, in the MHUb workflow, we can only capture the console output during the actual execution (i.e. within the `task()` method of a [module](../mhubio/how_to_write_an_mhubio_module.md#the-task-method)). You can solve this problem by moving the import statements into the `task()` method of your module or by wrapping your implementation in a cli-script and then using [self.subprocess](../mhubio/how_to_write_an_mhubio_module.md#running-a-subprocess-from-a-module) to execute that cli-script.
 
@@ -98,7 +98,7 @@ Now that you've found some suitable data to test your implementation on, you can
 
     - Inspect the content of **every** file generated and ensure any prediction generated reflects the expected accuracy as reported in the publication in the context of the selected test case.
 
-    - Ask yourself, if you were to run the algorithm the very first time without any knowlege beyond what is provided in the [model card](../mhub_models/model_json.md), is the output you are seeing what you would expect, useful, transparent and simple to understand?
+    - Ask yourself, if you were to run the algorithm the very first time without any knowledge beyond what is provided in the [model card](../mhub_models/model_json.md), is the output you are seeing what you would expect, useful, transparent, and simple to understand?
 
 8. Prepare the Test Results
 
@@ -116,9 +116,9 @@ Now that you've found some suitable data to test your implementation on, you can
 
     After you have successfully tested your model and ensured that it delivers the expected results for all sample data, you can send us your test results.
 
-    All that's left to do is to report your test results back to us. Therefore, please update your submission pull request with a comment in which you select one of the two suggested templates, depending on whether your workflow starts from a single Dicom input (e.g., starting with a [DicomImporter](../mhubio/mhubio_modules.md#dicomimporter)) Module) or non-dicom files or multiple inputs (e.g. starting with a [FileStructureImporter](../mhubio/mhubio_modules.md#filestructureimporter) module).
+    All that's left to do is to report your test results back to us. Therefore, please update your submission pull request with a comment in which you select one of the two suggested templates, depending on whether your workflow starts from a single DICOM input (e.g., starting with a [DicomImporter](../mhubio/mhubio_modules.md#dicomimporter)) Module), non-DICOM files, or multiple inputs (e.g. starting with a [FileStructureImporter](../mhubio/mhubio_modules.md#filestructureimporter) module).
 
-    You can find further instructions on how to collect the `IDC Version`, `SeriesInstanceUID` and `AWS URL` for your test data cases [here](https://github.com/MHubAI/models/pull/47#issuecomment-1870640491).
+    You can find further instructions on how to collect the `IDC Version`, `SeriesInstanceUID`, and `AWS URL` for your test data cases [here](https://github.com/MHubAI/models/pull/47#issuecomment-1870640491).
 
     For workflows starting with a DicomImporter:
 
@@ -163,7 +163,7 @@ Now that you've found some suitable data to test your implementation on, you can
     ```
     ````
 
-    The following example requests a test run for a model providing a single dicom checst CT from IDC as intput:
+    The following example requests a test run for a model providing a single DICOM chest CT from IDC as input:
 
     ````markdown
     /test
