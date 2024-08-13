@@ -41,6 +41,15 @@ As your model will of course not be available on our models repository unless yo
 docker build --build-arg MHUB_MODELS_REPO=https://github.com/your_username/models-fork::branch -t dev/my_model:latest .
 ```
 
+## Install additional MHub-IO collections
+
+Some MHub-IO modules are beneficial for many models, but are not delivered as part of the base image. You can access them by installing the collection with the build utility script `import_mhubio_collection.sh` in your Dockerfile. You can install any of the available official collections by simply referencing them by name. You can find a full list of available MHiub-IO collections here. You can also install custom collections by specifying the URL of the collection repository as the second argument and specifying the environment flag `ALLOW_UNREGISTERED_COLLECTIONS=true`.
+You can install multiple collections by repeating the command for each collection.
+
+```dockerfile
+RUN buildutils/import_mhubio_collection.sh collection_name
+```
+
 ## Clone Source Code
 
 Now clone the source code of your model into the container. To ensure that no changes are made to external resources without forcing a rebuild of the model, we insist that you check out a fixed revision by explicitly specifying the commit that will be cloned into the Dockerfile.
