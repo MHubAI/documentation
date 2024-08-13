@@ -260,7 +260,8 @@ First, we want to organize all instance data into separate folders named after t
     - nifti:mod=ct-->[i:caseId]/image/[basename]
 ```
 
-The final `custom.yml` fonfig file should then look like this (you can run `cat $config` to ensure your file looks like ours):
+The final `custom.yml` config file should then look like below.
+You can run `cat $config` to ensure your file looks like ours.
 
 ```yml
 general:
