@@ -1,11 +1,11 @@
 # The MHub Dockerfile
 
 Every MHub model is bundled with all dependencies and ressources in a Docker container.
-This document explains how to write your MHub compliant `Dockerfile`.
+This document explains how to write your MHub-compliant `Dockerfile`.
 
-***NOTE:** This document is still work in progress. More examples and references will be added in the newr future.**
+***NOTE:** This document is still work in progress. More examples and references will be added in the near future.**
 
-You can find examples of MHub compliant Dockerfiles in our [Models Repository](https://github.com/MHubAI/models/blob/main/base/dockerfiles/Dockerfile).
+You can find examples of MHub-compliant Dockerfiles in our [Models Repository](https://github.com/MHubAI/models/blob/main/base/dockerfiles/Dockerfile).
 
 ## Start from our official Base image
 
@@ -35,10 +35,10 @@ ARG MHUB_MODELS_REPO
 RUN buildutils/import_mhub_model.sh my_model ${MHUB_MODELS_REPO}
 ```
 
-As your model will of course not be available on our models repository unless your contribution is accepted, this won't build. The lines above therefore introduce a build argument `MHUB_MODELS_REPO` that you can use to specify your repository and branch at build time. As shown below, you can then specify `--build-arg` with the `docker build` command to set `MHUB_MODELS_REPO` to the URL of your fork of our models repository and optionally specify the branch name separated with `::` from the URL.
+As your model will, of course, not be available on our models repository unless your contribution is accepted, this won't build. The lines above, therefore, introduce a build argument, `MHUB_MODELS_REPO`, that you can use to specify your repository and branch at build time. As shown below, you can then specify `--build-arg` with the `docker build` command to set `MHUB_MODELS_REPO` to the URL of your fork of our models repository and optionally specify the branch name separated with `::` from the URL.
 
 ```bash
-docker build --build-arg MHUB_MODELS_REPO=https://github.com/your_username/models-fork::branch -t dev/my_model:latest .
+docker build --build-arg MHUB_MODELS_REPO=https://github.com/your_username/models-fork::branch -t dev/my_model:latest.
 ```
 
 ## Clone Source Code
@@ -60,4 +60,4 @@ CMD ["--workflow", "default"]
 
 ## The Standalone Concept
 
-All MHub Dockerfiles must be *standalone*, i.e. they can be built without additional local dependencies. Therefore, the use of the `COPY` or `ADD` statements is prohibited. Instead, download or clone the online resources at build time and use Docker mounts during development.
+All MHub Dockerfiles must be *standalone*, i.e., they can be built without additional local dependencies. Therefore, use of the `COPY` or `ADD` statements is prohibited. Instead, download or clone the online resources at build time and use Docker mounts during development.
