@@ -94,7 +94,7 @@ segdb:
     MY_CUSTOM_TRIPLET:
       code: 123
       meaning: custom code
-  segmentations:
+  segments:
     MY_CUSTOM_SEGMENTATION:
       name: custom segmentation
       category: C_BODY_STRUCTURE
