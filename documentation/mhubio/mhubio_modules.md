@@ -61,8 +61,8 @@ modules:
     source_dir: input_data
     import_dir: sorted_data
     sort_data: true
-      meta: 
-        mod: ct
+    meta: 
+      mod: ct
 ```
 
 The `data_base_dir` property in the general section, which defines the root directory to which all data operations refer, is set to `/app/data`. This setting should remain the same in all MHub containers and therefore, shouldn't be changed.
