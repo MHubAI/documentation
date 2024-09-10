@@ -8,7 +8,7 @@ Semantic data is expressed in terms of metadata-key-value pairs, which are store
 
 Semantic data annotations are available for all files and data passed between MHub- IO modules. For files, the semantic data annotation starts with the string representation of the file type (e.g. dicom or nifti), followed by the string representation of the metadata. For data, the semantic data annotation starts with the file name, followed by the metadata representation. The file type or file name is separated from the metadata string representation by a `:`.
 
-## DTQ Syntay
+## DTQ Syntax
 
 The simplest form of a DTQ is a direct match identifier. For example, consider the following store:
 
