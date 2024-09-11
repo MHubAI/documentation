@@ -50,47 +50,83 @@ Now that you've found some suitable data to test your implementation on, you can
 
 3. Build your model.
 
-    To create your model, first navigate to your project folder where your Dockerfile is located. `$model_name` is the name of your model. Please replace *"my_model "* with the name of your model.
+    To build your model, copy the repository url  (including the `.git`extension) of the fork repository where your mhub implementation currently is and your branch name.
 
     ```bash
     MHUB_MODEL_NAME="my_model"
-    cd /path/to/your/projects/models/models/$MHUB_MODEL_NAME/dockerfiles
+    MHUB_MODELS_REPO="https://github.com/MHubAI/models.git"
+    MHUB_MODELS_BRANCH="main"
     ```
 
-    When you build your model now, you need to reference the MHub implementation code. Since your model is not yet submitted, we cannot automatically pull your implementation from our models repository as we normally would. Therefore, you need to provide the URL of the form you used to create the PR (this is the repository where your model resides until the PR is merged).
-
-    Then create your model with the following command.
+    Then, run the following build command to build your model.
 
     ```bash
-    docker build --no-cache --build-arg MHUB_MODELS_REPO=https://github.com/your_username/models-fork::branch -t dev/$MHUB_MODEL_NAME:latest .
+    docker build --no-cache -t mhubai-dev/$MHUB_MODEL_NAME:latest --build-arg MHUB_MODELS_REPO=$MHUB_MODELS_REPO::$MHUB_MODELS_BRANCH $MHUB_MODELS_REPO#$MHUB_MODELS_BRANCH:models/$MHUB_MODEL_NAME/dockerfiles
     ```
 
-    Again, you must change `https://github.com/your_username/models-fork` to the URL of your fork of our models repository and optionally specify the name of the branch separated by `::` in the URL.
+    When you build your model now, you need to reference the MHub implementation code. Since your model is not yet submitted, we cannot automatically pull your implementation from our models repository as we normally would. Therefore, you need to specify the `--build-arg MHUB_MODELS_REPO=` argument to provide the URL of the form you used to create the PR (this is the repository where your model resides until the PR is merged).
 
-    The command will create an image with the name `dev/$MHUB_MODEL_NAME:latest`. You can use any other name, but it is a good idea to organize your images.
+4. Prepare a test folder.
+  
+    Create a new folder on your local machine where you can store the sample data and the output of your model.
 
-4. Download the Sample Data
+    ```bash
+    MHUB_TEST_DIR=/path/to/your/test/folder
+    MHUB_WORKFLOW_NAME="default"
 
-    Now, you need to download the sample data from IDC.  
-    [IDC User Guide - Downloading Data](https://learn.canceridc.dev/data/downloading-data)
+    mkdir -p $MHUB_TEST_DIR $MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/sample $MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/reference
+    ```
 
-5. Run the Model
+    Repeat this step for every workflow `MHUB_WORKFLOW_NAME` your model contains.
+    *Note: every config file you ship in your model's configs folder is a separate workflow. The workflow name is the name of the config file without the `.yml` extension.*
+
+5. Download the Sample Data
+
+    Now, you need to download the sample data from IDC. To learn more about how to download sample data form IDX, please refer to the [IDC User Guide](https://learn.canceridc.dev/data/downloading-data).
+
+    The following example uses the `idc-index` cli tool that can be downloaded with [pipx](https://pipx.pypa.io/stable/).
+
+    ```bash
+    # install idc-index cli
+    pipx install idc-index
+
+    # specify the SeriesInstanceUID and the download directory
+    MHUB_TEST_SID=1.2.840.113654.2.55.257926562693607663865369179341285235858
+    MHUB_TEST_SID_DIR="dicom"
+  
+    # download sample data
+    idc download-from-selection \
+      --series-instance-uid $MHUB_TEST_SID \
+      --show-progress-bar true \
+      --download-dir $MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/sample/$MHUB_TEST_SID_DIR \
+      --dir-template ""
+    ```
+
+    Repeat this step for every sample you want to download. If required, you can also include files from other sources into the `$MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/sample` folder.
+    Repeat this step for every workflow `MHUB_WORKFLOW_NAME` your model contains.
+
+6. Run the Model
 
     Now that you have some sample data downloaded, you can run your model.
-    Make sure to update the `/path/to/your/sample/data` and `/path/to/your/output/folder` with the paths to your sample data and an *empty* output folder.
 
     ```bash
     MHUB_OUTPUT_DIR=/path/to/your/output/folder
-    docker run dev/$MHUB_MODEL_NAME:latest -v /path/to/your/sample/data:/app/data/input_data:ro -v $MHUB_OUTPUT_DIR:/app/data/output_data 
+    docker run mhubai-dev/$MHUB_MODEL_NAME:latest \
+      --gpus all \
+      -v $MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/sample/:/app/data/input_data:ro \
+      -v $MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/reference:/app/data/output_data  \
+      -w $MHUB_WORKFLOW_NAME
     ```
 
-6. Inspect the Console Output
+    Repeat this step for every workflow `MHUB_WORKFLOW_NAME` your model contains.
+
+7. Inspect the Console Output
 
     MHub captures all `print()` statements in log files and displays a clean process overview on the console. Make sure that no uncaptured output is generated in your implementation (uncaptured output can generate repeated lines, omitted lines, or additional text that should not occur). If your implementation does not generate clean output, your model cannot be accepted.
 
     **Note**: Some Python packages contain print statements in `__init__.py` files or at file level in otherwise imported files that are executed at import time. However, in the MHUb workflow, we can only capture the console output during the actual execution (i.e. within the `task()` method of a [module](../mhubio/how_to_write_an_mhubio_module.md#the-task-method)). You can solve this problem by moving the import statements into the `task()` method of your module or by wrapping your implementation in a cli-script and then using [self.subprocess](../mhubio/how_to_write_an_mhubio_module.md#running-a-subprocess-from-a-module) to execute that cli-script.
 
-7. Inspect the File Output
+8. Inspect the File Output
 
     Now you can inspect the output of your model. If you are satisfied with the output (e.g., the output looks as expected from the model or algorithm you are deploying to MHub), you can proceed to the next step.
 
@@ -100,83 +136,25 @@ Now that you've found some suitable data to test your implementation on, you can
 
     - Ask yourself, if you were to run the algorithm the very first time without any knowledge beyond what is provided in the [model card](../mhub_models/model_json.md), is the output you are seeing what you would expect, useful, transparent, and simple to understand?
 
-8. Prepare the Test Results
+9. Prepare the Test Results
 
     In order for us to verify your test results, we need to know the sample data you choose to run your model on as well as the output your model produced.
 
-    6.1. Zip your models output folder.
+    9.1. Zip your models output folder.
 
     ```bash
-    (cd $MHUB_OUTPUT_DIR && zip -r - ./*) > output.zip
+    (cd $MHUB_TEST_DIR && zip -r - ./*) > test.zip
     ```
 
-    6.2. Upload the zip file `output.zip` to a publicly accessible location (e.g. GitHub, Google Drive, Dropbox, etc.).
+    9.2. Upload the zip file `test.zip` to [Zenodo](https://zenodo.org/) and obtain a public link to the file.
 
-9. Submit your Test Results
+    9.3. Update the link in your `mhub.toml` file at the root of your model folder.
 
-    After you have successfully tested your model and ensured that it delivers the expected results for all sample data, you can send us your test results.
-
-    All that's left to do is to report your test results back to us. Therefore, please update your submission pull request with a comment in which you select one of the two suggested templates, depending on whether your workflow starts from a single DICOM input (e.g., starting with a [DicomImporter](../mhubio/mhubio_modules.md#dicomimporter)) Module), non-DICOM files, or multiple inputs (e.g. starting with a [FileStructureImporter](../mhubio/mhubio_modules.md#filestructureimporter) module).
-
-    You can find further instructions on how to collect the `IDC Version`, `SeriesInstanceUID`, and `AWS URL` for your test data cases [here](https://github.com/MHubAI/models/pull/47#issuecomment-1870640491).
-
-    For workflows starting with a DicomImporter:
-
-    ````markdown
-    /test
-
-    ```yaml
-    sample:
-      idc_version: <enter IDC version>
-      data:
-      - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1>
-        aws_url: <enter URL to your test case 1>
-        path: dicom
-
-    reference:
-      url: <url to zip file containing model output>
+    ```toml
+    [model.distibution]
+    test = "https://zenodo.org/xxxxxxxxxxxxx"
     ```
-    ````
 
-    For workflows starting with a FileStructureImporter:
+10. Submit your Test Results
 
-    ````markdown
-    /test
-
-    ```yaml
-    sample:
-      idc_version: <enter IDC version>
-      data:
-      - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1 first input>
-        aws_url: <enter URL to your test case 1 first input>
-        path: <the relative path where the instance is loaded into, e.g. `case1/ct`>
-      - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 1 second input>
-        aws_url: <enter URL to your test case 1 second input>
-        path: <the relative path where the instance is loaded into, e.g. `case1/mr`>
-
-      - SeriesInstanceUID: <enter SeriesInstanceUID of your test case 2 first input>
-        aws_url: <enter URL to your test case 2 first input>
-        path: <the relative path where the instance is loaded into, e.g. `case2/ct`>
-
-    reference:
-      url: <url to zip file containing model output>
-    ```
-    ````
-
-    The following example requests a test run for a model providing a single DICOM chest CT from IDC as input:
-
-    ````markdown
-    /test
-
-    ```yaml
-    sample:
-      idc_version: "Data Release 17.0 December 04, 2023"
-      data:
-      - SeriesInstanceUID: 1.2.840.113654.2.55.257926562693607663865369179341285235858
-        aws_url: s3://idc-open-data/7271ab1d-bb03-4ca9-9457-dabcafd4d33f/*
-        path: dicom
-
-    reference:
-      url: https://www.dropbox.com/scl/fi/vsgt82id8m712e5wbsby6/output.zip?rlkey=jy7vz011uboyauo0q9e3ds0b0&dl=0
-    ```
-    ````
+    After you have successfully tested your model and ensured that it delivers the expected results for all sample data, you can request a test run by creating a comment on your commit starting with `/test`.
