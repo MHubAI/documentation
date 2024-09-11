@@ -61,7 +61,10 @@ Now that you've found some suitable data to test your implementation on, you can
     Then, run the following build command to build your model.
 
     ```bash
-    docker build --no-cache -t mhubai-dev/$MHUB_MODEL_NAME:latest --build-arg MHUB_MODELS_REPO=$MHUB_MODELS_REPO::$MHUB_MODELS_BRANCH $MHUB_MODELS_REPO#$MHUB_MODELS_BRANCH:models/$MHUB_MODEL_NAME/dockerfiles
+    docker build --no-cache \
+        -t mhubai-dev/$MHUB_MODEL_NAME:latest \
+        --build-arg MHUB_MODELS_REPO=$MHUB_MODELS_REPO::$MHUB_MODELS_BRANCH \
+        $MHUB_MODELS_REPO#$MHUB_MODELS_BRANCH:models/$MHUB_MODEL_NAME/dockerfiles
     ```
 
     When you build your model now, you need to reference the MHub implementation code. Since your model is not yet submitted, we cannot automatically pull your implementation from our models repository as we normally would. Therefore, you need to specify the `--build-arg MHUB_MODELS_REPO=` argument to provide the URL of the form you used to create the PR (this is the repository where your model resides until the PR is merged).
@@ -110,7 +113,6 @@ Now that you've found some suitable data to test your implementation on, you can
     Now that you have some sample data downloaded, you can run your model.
 
     ```bash
-    MHUB_OUTPUT_DIR=/path/to/your/output/folder
     docker run mhubai-dev/$MHUB_MODEL_NAME:latest \
       --gpus all \
       -v $MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/sample/:/app/data/input_data:ro \
