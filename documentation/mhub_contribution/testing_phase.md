@@ -153,7 +153,7 @@ Now that you've found some suitable data to test your implementation on, you can
     9.3. Update the link in your `mhub.toml` file at the root of your model folder.
 
     ```toml
-    [model.distibution]
+    [model.deployment]
     test = "https://zenodo.org/xxxxxxxxxxxxx"
     ```
 
