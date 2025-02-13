@@ -1,4 +1,4 @@
-# MHub Configuration
+# MHub-IO Workflow Configuration
 
 This document describes the structure and use of the configuration files that are part of every MHub model and orchestrate the MHub pipeline in so-called workflows.
 
@@ -77,6 +77,26 @@ execute:
   meta: 
     mod: '%Modality'
     desc: '%SeriesDescription'
+```
+
+### Sample data annotation
+
+For every MHub workflow, a detailed description of the input and output data must be provided under the `sample` entry. The two mandatory fields, `sample.input` and `sample.output`, describe the tree structure (directories and files) of the input and output data, respectively. Each key in the input and output object represents a path, while the value provides a short and comprehensive description. Folders are indicated by a trailing slash `/`. This trailing slash can be omitted if the path is used as a prefix for other entries, clarifying its purpose as a folder.
+
+The data structure must match the actual structure of the sample data provided in the mhub.toml file. For DICOM folders containing only *.dcm files, individual slice files can be omitted if the folder is named `dicom/`.
+
+Additionally, you can reference the resources in IDC by providing the SeriesInstanceUID and the aws_url for a folder. The aws_url is the path to the folder in the IDC S3 bucket, while the SeriesInstanceUID is the unique identifier for the DICOM series. For every key under `sample.idc`, a corresponding folder key must exist under `sample.input`.
+
+```yml
+sample:
+  idc:
+    dicom: 
+      SeriesInstanceUID: 61.7.186195007319014217251157852440977945371
+      aws_url: s3://idc-open-data/b28448ba-0dee-49e6-94f1-5c3877a63186/*
+  input: 
+    "dicom/": "Folder containing dicom files for one or multiple CT scan"
+  output:
+    "61.7.186195007319014217251157852440977945371/TotalSegmentator.seg.dcm": "Segmentation output file"
 ```
 
 ### SegDB customization

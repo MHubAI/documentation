@@ -163,11 +163,11 @@ FROM mhubai/base:latest
 # && rm -rf /var/lib/apt/lists/* 
 
 # install any python dependencies 
-# RUN pip3 install --no-cache-dir \
+# RUN uv pip install --no-cache-dir \
 #     <package name> 
 
 # install model
-RUN pip3 install git+https://github.com/mhubai/thresholder_demo.git
+RUN uv pip install git+https://github.com/mhubai/thresholder_demo.git
 
 # load model definition
 ARG MHUB_MODELS_REPO

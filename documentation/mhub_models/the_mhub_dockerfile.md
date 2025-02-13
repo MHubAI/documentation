@@ -21,7 +21,9 @@ FROM mhubai/base:latest
 
 ## Install your dependencies
 
-Next, install all your system dependencies, e.g. python packages.
+Next, install all your system dependencies, such as Python packages. 
+The MHub base image includes `uv`, a very fast Python package manager written in Rust. 
+You can install packages using `uv pip install ...`
 
 ## Clone your model's repository
 
