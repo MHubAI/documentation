@@ -53,9 +53,9 @@ Now that you've found some suitable data to test your implementation on, you can
     To build your model, copy the repository url  (including the `.git`extension) of the fork repository where your mhub implementation currently is and your branch name.
 
     ```bash
-    MHUB_MODEL_NAME="my_model"
-    MHUB_MODELS_REPO="https://github.com/MHubAI/models.git"
-    MHUB_MODELS_BRANCH="main"
+    export MHUB_MODEL_NAME="my_model"
+    export MHUB_MODELS_REPO="https://github.com/MHubAI/models.git"
+    export MHUB_MODELS_BRANCH="main"
     ```
 
     Then, run the following build command to build your model.
@@ -74,8 +74,8 @@ Now that you've found some suitable data to test your implementation on, you can
     Create a new folder on your local machine where you can store the sample data and the output of your model.
 
     ```bash
-    MHUB_TEST_DIR=/path/to/your/test/folder
-    MHUB_WORKFLOW_NAME="default"
+    export MHUB_TEST_DIR=/path/to/your/test/folder
+    export MHUB_WORKFLOW_NAME="default"
 
     mkdir -p $MHUB_TEST_DIR $MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/sample $MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/reference
     ```
@@ -87,15 +87,15 @@ Now that you've found some suitable data to test your implementation on, you can
 
     Now, you need to download the sample data from IDC. To learn more about how to download sample data form IDX, please refer to the [IDC User Guide](https://learn.canceridc.dev/data/downloading-data).
 
-    The following example uses the `idc-index` cli tool that can be downloaded with [pipx](https://pipx.pypa.io/stable/).
+    The following example uses the `idc-index` cli tool that can be downloaded with pip
 
     ```bash
     # install idc-index cli
-    pipx install idc-index
+    pip install idc-index
 
     # specify the SeriesInstanceUID and the download directory
-    MHUB_TEST_SID=1.2.840.113654.2.55.257926562693607663865369179341285235858
-    MHUB_TEST_SID_DIR="dicom"
+    export MHUB_TEST_SID=1.2.840.113654.2.55.257926562693607663865369179341285235858
+    export MHUB_TEST_SID_DIR="dicom"
   
     # download sample data
     idc download-from-selection \
@@ -105,30 +105,32 @@ Now that you've found some suitable data to test your implementation on, you can
       --dir-template ""
     ```
 
-    Repeat this step for every sample you want to download. If required, you can also include files from other sources into the `$MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/sample` folder.
+    If you need to download an entire study, you can use the `--study-instance-uid` instead of `--series-instance-uid` in the idc command while passing on the respective UID. 
+   Repeat this step for every sample you want to download. If required, you can also include files from other sources into the `$MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/sample` folder.
     Repeat this step for every workflow `MHUB_WORKFLOW_NAME` your model contains.
 
-6. Run the Model
+7. Run the Model
 
     Now that you have some sample data downloaded, you can run your model.
 
     ```bash
-    docker run mhubai-dev/$MHUB_MODEL_NAME:latest \
+    docker run \
       --gpus all \
       -v $MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/sample/:/app/data/input_data:ro \
       -v $MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/reference:/app/data/output_data  \
+         mhubai-dev/$MHUB_MODEL_NAME:latest \
       -w $MHUB_WORKFLOW_NAME
     ```
 
     Repeat this step for every workflow `MHUB_WORKFLOW_NAME` your model contains.
 
-7. Inspect the Console Output
+8. Inspect the Console Output
 
     MHub captures all `print()` statements in log files and displays a clean process overview on the console. Make sure that no uncaptured output is generated in your implementation (uncaptured output can generate repeated lines, omitted lines, or additional text that should not occur). If your implementation does not generate clean output, your model cannot be accepted.
 
     **Note**: Some Python packages contain print statements in `__init__.py` files or at file level in otherwise imported files that are executed at import time. However, in the MHUb workflow, we can only capture the console output during the actual execution (i.e. within the `task()` method of a [module](../mhubio/how_to_write_an_mhubio_module.md#the-task-method)). You can solve this problem by moving the import statements into the `task()` method of your module or by wrapping your implementation in a cli-script and then using [self.subprocess](../mhubio/how_to_write_an_mhubio_module.md#running-a-subprocess-from-a-module) to execute that cli-script.
 
-8. Inspect the File Output
+9. Inspect the File Output
 
     Now you can inspect the output of your model. If you are satisfied with the output (e.g., the output looks as expected from the model or algorithm you are deploying to MHub), you can proceed to the next step.
 
@@ -138,7 +140,7 @@ Now that you've found some suitable data to test your implementation on, you can
 
     - Ask yourself, if you were to run the algorithm the very first time without any knowledge beyond what is provided in the [model card](../mhub_models/model_json.md), is the output you are seeing what you would expect, useful, transparent, and simple to understand?
 
-9. Prepare the Test Results
+10. Prepare the Test Results
 
     In order for us to verify your test results, we need to know the sample data you choose to run your model on as well as the output your model produced.
 
@@ -157,6 +159,6 @@ Now that you've found some suitable data to test your implementation on, you can
     test = "https://zenodo.org/xxxxxxxxxxxxx"
     ```
 
-10. Submit your Test Results
+11. Submit your Test Results
 
     After you have successfully tested your model and ensured that it delivers the expected results for all sample data, you can request a test run by creating a comment on your commit starting with `/test`.
