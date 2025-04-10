@@ -29,19 +29,19 @@ export out=$(realpath -m ~/Desktop/mhub_tutorial_005/output)
 export config=$(realpath -m ~/Desktop/mhub_tutorial_005/config)
 ```
 
-1. Set up a tutorial folder on your desktop with subdirectories for data input, output, and custom configuration files.
+2. Set up a tutorial folder on your desktop with subdirectories for data input, output, and custom configuration files.
 
 ```bash
 mkdir -p $in $out $config
 ```
 
-1. Download the model's sample data for this tutorial.
+3. Download the model's sample data for this tutorial.
 
 ```bash
 docker run --rm -it -v $in:/app/data/input_data --entrypoint mhub.test mhubai/casust:latest vs
 ```
 
-1. Download the custom config created in this tutorial.
+4. Download the custom config created in this tutorial.
 
 ```bash
 # for CaSuSt
@@ -51,7 +51,7 @@ wget https://raw.githubusercontent.com/MHubAI/documentation/main/tutorials/run_h
 wget https://raw.githubusercontent.com/MHubAI/documentation/main/tutorials/run_heart_structure_segmentation_as_rtstruct/platipy.rtstruct.yml -O $config/platipy.rtstruct.yml
 ```
 
-1. Run the custom workflow.
+5. Run the custom workflow.
 
 ```bash
 # for CaSuSt
@@ -61,7 +61,7 @@ docker run --rm -t --gpus all -v $in:/app/data/input_data:ro -v $out:/app/data/o
 docker run --rm -t --gpus all -v $in:/app/data/input_data:ro -v $out:/app/data/output_data -v $config/platipy.rtstruct.yml:/app/config/custom.yml:ro mhubai/platipy:latest --config /app/config/custom.yml
 ```
 
-1. Done, your will find the exported results under the `mhub_tutorial_005/output` folder.
+6. Done, your will find the exported results under the `mhub_tutorial_005/output` folder.
 
 ```bash
 tree $out

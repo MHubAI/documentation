@@ -35,31 +35,31 @@ For those who just want a quick walkthrough to th esteps to follow along, here's
   export config=$(realpath -m ~/Desktop/mhub_tutorial_002/config/custom.yml)
   ```
 
-1. Setup a turorial folder under your desktop and create an empty custom config file.
+2. Setup a turorial folder under your desktop and create an empty custom config file.
   
   ```bash
   mkdir -p $in $in/nrrd $in/nifti $in/dicom $(dirname $config) && touch $config
   ```
 
-1. Download the sample data for this tutorial.
+3. Download the sample data for this tutorial.
 
   ```bash
   wget http://www.slicer.org/w/img_auth.php/3/31/CT-chest.nrrd -O $in/nrrd/CT-chest.nrrd
   ```
 
-1. Download the custom config created in this tutorial.
+4. Download the custom config created in this tutorial.
 
   ```bash
   wget https://raw.githubusercontent.com/MHubAI/documentation/main/tutorials/run_lungmask_on_chestct_in_nifti_format/custom.yml -O $config
   ```
 
-1. Run the custom workflow.
+5. Run the custom workflow.
 
 ```bash
 docker run --rm -t --gpus all -v $in:/app/data/input_data:ro -v $out:/app/data/output_data -v $config:/app/config/custom.yml:ro mhubai/lungmask:latest --config /app/config/custom.yml
 ```
 
-1. Done, your will find the exported results under the `mhub_tutorial_002/output` folder.
+6. Done, your will find the exported results under the `mhub_tutorial_002/output` folder.
 
   ```bash
   tree $out
