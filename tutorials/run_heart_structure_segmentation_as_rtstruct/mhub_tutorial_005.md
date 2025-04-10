@@ -45,10 +45,10 @@ docker run --rm -it -v $in:/app/data/input_data --entrypoint mhub.test mhubai/ca
 
 ```bash
 # for CaSuSt
-wget https://raw.githubusercontent.com/MHubAI/documentation/main/tutorials/run_heart_structure_segmentation_as_rtstruct/casust.rtstruct.yml -O $config/casust.rtstruct
+wget https://raw.githubusercontent.com/MHubAI/documentation/main/tutorials/run_heart_structure_segmentation_as_rtstruct/casust.rtstruct.yml -O $config/casust.rtstruct.yml
 
 # for Platipy
-wget https://raw.githubusercontent.com/MHubAI/documentation/main/tutorials/run_heart_structure_segmentation_as_rtstruct/casust.rtstruct.yml -O $config/casust.rtstruct
+wget https://raw.githubusercontent.com/MHubAI/documentation/main/tutorials/run_heart_structure_segmentation_as_rtstruct/platipy.rtstruct.yml -O $config/platipy.rtstruct.yml
 ```
 
 1. Run the custom workflow.
