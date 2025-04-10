@@ -1,0 +1,29 @@
+general:
+  data_base_dir: /app/data
+  version: 1.0.0
+  description: custom configuration for Platipy (dicom to rtstruct)
+
+execute:
+- DicomImporter
+- NiftiConverter
+- PlatipyRunner
+- RTStructConverter
+- DataOrganizer
+
+modules:
+  DicomImporter:
+    source_dir: input_data
+    import_dir: sorted_data
+    sort_data: true
+    meta: 
+      mod: '%Modality'
+
+  RTStructConverter:
+    model_name: Platipy
+    body_part_examined: CHEST
+    source_segs: nifti:mod=seg
+    skip_empty_slices: True
+
+  DataOrganizer:
+   targets:
+   - rtstruct:mod=seg-->[i:sid]/Platipy.rts.dcm

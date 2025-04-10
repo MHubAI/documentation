@@ -1,0 +1,38 @@
+general:
+  data_base_dir: /app/data
+  version: 1.0
+  description: "custom configuration for CaSuSt dicom to rtstruct"
+
+execute:
+- DicomImporter
+- NiftiConverter
+- NNUnetRunner
+- CasustRunner
+- RTStructConverter
+- DataOrganizer
+
+modules:
+  DicomImporter:
+    source_dir: input_data
+    import_dir: sorted_data
+    sort_data: true
+    meta: 
+      mod: '%Modality'
+
+  NNUnetRunner:
+    folds: all
+    nnunet_task: Task400_OPEN_HEART_1FOLD
+    nnunet_model: 3d_lowres
+    roi: HEART
+
+  CasustRunner:
+    test_time_augmentation: 0
+
+  RTStructConverter:
+    model_name: CaSuSt
+    source_segs: nrrd|nifti:mod=seg
+    skip_empty_slices: True
+  
+  DataOrganizer:
+    targets:
+    - rtstruct:mod=seg-->[i:sid]/CaSuSt.rts.dcm
