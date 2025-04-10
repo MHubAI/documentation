@@ -1,4 +1,4 @@
-# T2 - Run Custom MHub Lung Segmentation Workflow on Chest CT in Nifti Format
+# T2 - Run Custom MHub Lung Segmentation Workflow on Chest CT in NIFTI or NRRD Format
 
 - Difficulty: Intermediate
 - Duration: 45 minutes
@@ -27,7 +27,6 @@ To download the sample data we use `wget` (v1.20.3). Try to run `tree --version`
 
 For those who just want a quick walkthrough to th esteps to follow along, here's the short version. If you prefer a more detailed guide and some background knowledge, you can jump to [Hands on](#hands-on). Of course you can come here later for a quick recap.
 
-
 1. Set the folowing environment variables or replace them by absolute paths in all of the below commands.
 
   ```bash
@@ -36,31 +35,31 @@ For those who just want a quick walkthrough to th esteps to follow along, here's
   export config=$(realpath -m ~/Desktop/mhub_tutorial_002/config/custom.yml)
   ```
 
-2. Setup a turorial folder under your desktop and create an empty custom config file.
+1. Setup a turorial folder under your desktop and create an empty custom config file.
   
   ```bash
   mkdir -p $in $in/nrrd $in/nifti $in/dicom $(dirname $config) && touch $config
   ```
 
-3. Download the sample data for this tutorial.
+1. Download the sample data for this tutorial.
 
   ```bash
   wget http://www.slicer.org/w/img_auth.php/3/31/CT-chest.nrrd -O $in/nrrd/CT-chest.nrrd
   ```
 
-4. Download the custom config created in this tutorial.
+1. Download the custom config created in this tutorial.
 
   ```bash
   wget https://raw.githubusercontent.com/MHubAI/documentation/main/tutorials/run_lungmask_on_chestct_in_nifti_format/custom.yml -O $config
   ```
 
-4. Run the custom workflow.
+1. Run the custom workflow.
 
 ```bash
 docker run --rm -t --gpus all -v $in:/app/data/input_data:ro -v $out:/app/data/output_data -v $config:/app/config/custom.yml:ro mhubai/lungmask:latest --config /app/config/custom.yml
 ```
 
-5. Done, your will find the exported results under the `mhub_tutorial_002/output` folder.
+1. Done, your will find the exported results under the `mhub_tutorial_002/output` folder.
 
   ```bash
   tree $out
@@ -122,7 +121,7 @@ All MHub models come with a *default workflow*, that runs through a pipeline sta
 
 ```bash
 # run the default workflow
-docker run --rm -i -v $in:/app/data/input_data:ro -v $out:/app/data/output_data mhubai/lungmask:latest
+docker run --rm -it --gpus all -v $in:/app/data/input_data:ro -v $out:/app/data/output_data mhubai/lungmask:latest
 ```
 
 Unless you have not provided any Dicom data in the data folder (e.g. in `mhub_tutorial_002/data/dicom`), you will see that MHub imports zero instances (`1. DicomImporter 0/0`) and no output was generated. This is because the default workflow always searches the entire input folder for suitable data in Dicom format.
@@ -136,7 +135,7 @@ However, since there is no workflow for such a specfic task, we have to write ou
 
 #### Inspection of the Default Workflow
 
-Let's first take a closer look at the standard workflow already mentioned. Each MHub workflow is a single yaml file that describes a sequential execution of so-called MHub Modules. You can learn more about MHub modules and find an overview of all MHub stock modules in our documentation [here](../../documentation/mhubio/mhubio_modules.md).
+Let's first take a closer look at the default workflow. Each MHub workflow is a single yaml file that describes a sequential execution of so-called MHub Modules. You can learn more about MHub modules and find an overview of all MHub stock modules in our documentation [here](../../documentation/mhubio/mhubio_modules.md).
 
 The default workflow for the MHub deploymnet of LungMask can be found in our [Models Repository](https://github.com/MHubAI/models) under [models/lungmask/config/default.yml](https://github.com/MHubAI/models/blob/main/models/lungmask/config/default.yml).
 
@@ -194,7 +193,6 @@ To turn this workflow into an nrrd-nifti pipeline, we need to make the following
 1. We need to replace the `DicomImporter` module with a [FileStructureImporter](../../documentation/mhubio/mhubio_modules.md#filestructureimporter) module that can import data from a file structure.
 2. We remove the `DSegConverter` module because DICOMSEG files can only be created for a reference Dicom file.
 3. We modify the `DataOrganizer` module to store the raw Nifti output of the lung mask model and to create files with standardized file names thatmake it easier to compare the results of this model with those of other models that delineate the same regions of interest.
-
 
 #### Creating a Custom Workflow
 
