@@ -1,0 +1,8 @@
+# To obtain these images, install the idc-index (https://github.com/ImagingDataCommons/idc-index) python package:
+# pip install --upgrade idc-index
+# then run the following command:
+# idc download <manifest file name>
+# IDC Data Version(s): 
+# Total manifest size on disk: 161.22 MB
+cp s3://idc-open-data/b5eccfcf-ff1c-495b-a654-9c36f5ff2c93/* .
+cp s3://idc-open-data/a4cfdf5d-1836-4340-8f0a-afae2ec106f8/* .
