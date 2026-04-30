@@ -113,10 +113,10 @@ Now that you've found some suitable data to test your implementation on, you can
     Now that you have some sample data downloaded, you can run your model.
 
     ```bash
-    docker run mhubai-dev/$MHUB_MODEL_NAME:latest \
-      --gpus all \
+    docker run --rm --gpus all \
       -v $MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/sample/:/app/data/input_data:ro \
-      -v $MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/reference:/app/data/output_data  \
+      -v $MHUB_TEST_DIR/$MHUB_WORKFLOW_NAME/reference:/app/data/output_data \
+      mhubai-dev/$MHUB_MODEL_NAME:latest \
       -w $MHUB_WORKFLOW_NAME
     ```
 
