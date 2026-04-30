@@ -154,7 +154,7 @@ Now that you've found some suitable data to test your implementation on, you can
 
     ```toml
     [model.deployment]
-    test = "https://zenodo.org/xxxxxxxxxxxxx"
+    test = "https://zenodo.org/xxxxxxxxxxxxx.zip"
     ```
 
 10. Submit your Test Results
